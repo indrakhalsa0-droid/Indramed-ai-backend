@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IndraMed.ai | Next-Generation Clinical AI & Medical Imaging Intelligence</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        display: ['Space Grotesk', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      colors: {
+        brand: {
+          dark: '#030712',
+          surface: '#090E1A',
+          card: '#0F172A',
+          cardHover: '#162038',
+          border: '#1E293B',
+          borderLight: '#334155',
+          cyan: '#00F0FF',
+          cyanMuted: '#00bcd4',
+          blue: '#2563EB',
+          teal: '#00E599',
+          amber: '#FFB800',
+          alert: '#EF4444'
+        }
+      },
+      animation: {
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'scanline': 'scan 3s linear infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'glow': 'glow 3s ease-in-out infinite alternate',
+      },
+      keyframes: {
+        scan: { '0%': { transform: 'translateY(-100%)' }, '100%': { transform: 'translateY(1000%)' } },
+        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-8px)' } },
+        glow: { '0%': { opacity: '0.3', filter: 'drop-shadow(0 0 15px rgba(0,240,255,0.3))' }, '100%': { opacity: '0.8', filter: 'drop-shadow(0 0 30px rgba(0,240,255,0.7))' } }
+      }
+    }
+  }
+}
+</script>
+<style>
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #030712; }
+::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #00F0FF; }
+.text-glow { text-shadow: 0 0 20px rgba(0, 240, 255, 0.45); }
+.grid-bg { background-size: 40px 40px; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); }
+.radial-gradient-hero { background: radial-gradient(circle at 50% 20%, rgba(0, 240, 255, 0.08) 0%, rgba(37, 99, 235, 0.05) 35%, transparent 70%); }
+.synthetic-badge { background: repeating-linear-gradient(45deg, rgba(255, 184, 0, 0.12), rgba(255, 184, 0, 0.12) 8px, rgba(255, 184, 0, 0.22) 8px, rgba(255, 184, 0, 0.22) 16px); }
+input[type=range] { accent-color: #00F0FF; }
+.reveal{opacity:0;transform:translateY(18px);transition:all .7s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.stagger > *{opacity:0;transform:translateY(14px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+.stagger.in > *{opacity:1;transform:none}
+.stagger.in > *:nth-child(1){transition-delay:.05s}
+.stagger.in > *:nth-child(2){transition-delay:.15s}
+.stagger.in > *:nth-child(3){transition-delay:.25s}
+.stagger.in > *:nth-child(4){transition-delay:.35s}
+.header-scrolled{backdrop-filter:blur(16px);background:rgba(3,7,18,.92)!important;border-bottom-color:rgba(0,240,255,.18)!important}
+#liveCanvas, #xrayCanvas{image-rendering:-webkit-optimize-contrast}
+.camera-shutter{animation:shutter .35s ease}
+@keyframes shutter{0%{filter:brightness(1)}50%{filter:brightness(1.9)}100%{filter:brightness(1)}}
+</style>
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-brand-cyan selection:text-black">
+<!-- TOP STATUS NOTICE -->
+<aside aria-label="Project Status" class="bg-gradient-to-r from-brand-surface via-brand-card to-brand-surface border-b border-brand-border/80 py-2.5 px-4 text-xs sticky top-0 z-50">
+<div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-2.5 text-slate-300">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/30 tracking-wider">PROTOTYPE PHASE 2026</span>
+<span class="hidden sm:inline text-slate-600">|</span>
+<span class="text-slate-300 font-medium">Pre-Seed / Seed Medical AI Initiative</span>
+</div>
+<div class="flex items-center gap-3 text-slate-400 font-mono text-[11px]">
+<span class="flex items-center gap-1.5 text-brand-teal"><span class="w-2 h-2 rounded-full bg-brand-teal animate-ping"></span> Clinical Intelligence & Imaging Platform</span>
+</div>
+</div>
+</aside>
+<!-- HEADER -->
+<header id="mainHeader" class="sticky top-[37px] z-40 backdrop-blur-xl bg-brand-dark/90 border-b border-brand-border/60 transition-all duration-300">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+<a href="#" class="flex items-center gap-3.5 group">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-cyan via-brand-blue to-brand-teal p-[1px] flex items-center justify-center shadow-lg shadow-brand-cyan/20 group-hover:scale-105 transition-transform">
+<div class="w-full h-full bg-brand-dark rounded-[11px] flex items-center justify-center"><i data-lucide="activity" class="w-5 h-5 text-brand-cyan group-hover:rotate-12 transition-transform"></i></div>
+</div>
+<div>
+<span class="text-2xl font-display font-black tracking-tight text-white flex items-center gap-0.5">IndraMed<span class="text-brand-cyan">.ai</span></span>
+<span class="block text-[10px] font-mono tracking-widest text-slate-400 uppercase -mt-1 font-semibold">Clinical AI Intelligence</span>
+</div>
+</a>
+<nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-300">
+<a href="#vision" class="hover:text-brand-cyan transition-colors">Vision</a>
+<a href="#markets" class="hover:text-brand-cyan transition-colors">Strategic Markets</a>
+<a href="#technology" class="hover:text-brand-cyan transition-colors">Technology</a>
+<a href="#demo" class="hover:text-brand-cyan transition-colors flex items-center gap-1 text-brand-cyan"><span class="w-2 h-2 rounded-full bg-brand-cyan animate-pulse"></span> AI Demo</a>
+<a href="#roadmap" class="hover:text-brand-cyan transition-colors">Roadmap</a>
+<a href="#team" class="hover:text-brand-cyan transition-colors">Team</a>
+<a href="#investment" class="hover:text-brand-cyan transition-colors">Investment</a>
+</nav>
+<div class="hidden sm:flex items-center gap-3">
+<button onclick="openModal('pitchModal')" class="px-4 py-2 text-xs font-mono font-semibold text-slate-300 hover:text-white bg-brand-card hover:bg-brand-cardHover border border-brand-border rounded-lg transition-all">Request Deck</button>
+<button onclick="openModal('partnerModal')" class="px-4 py-2 text-xs font-mono font-bold text-brand-dark bg-brand-cyan hover:bg-white hover:shadow-[0_0_20px_rgba(0,240,255,0.6)] rounded-lg transition-all flex items-center gap-1.5"><i data-lucide="handshake" class="w-3.5 h-3.5"></i> Partner With Us</button>
+</div>
+<button id="mobileMenuBtn" class="lg:hidden text-slate-400 hover:text-white p-2"><i data-lucide="menu" class="w-6 h-6"></i></button>
+</div>
+<div id="mobileMenu" class="hidden lg:hidden bg-brand-surface border-b border-brand-border px-6 py-5 space-y-4">
+<a href="#vision" class="block text-sm font-medium text-slate-300 hover:text-brand-cyan" onclick="toggleMobileMenu()">Vision</a>
+<a href="#markets" class="block text-sm font-medium text-slate-300 hover:text-brand-cyan" onclick="toggleMobileMenu()">Strategic Markets</a>
+<a href="#technology" class="block text-sm font-medium text-slate-300 hover:text-brand-cyan" onclick="toggleMobileMenu()">Technology</a>
+<a href="#demo" class="block text-sm font-medium text-brand-cyan" onclick="toggleMobileMenu()">Interactive AI Demo</a>
+<a href="#roadmap" class="block text-sm font-medium text-slate-300 hover:text-brand-cyan" onclick="toggleMobileMenu()">Roadmap</a>
+<a href="#team" class="block text-sm font-medium text-slate-300 hover:text-brand-cyan" onclick="toggleMobileMenu()">Team & Capabilities</a>
+<a href="#investment" class="block text-sm font-medium text-slate-300 hover:text-brand-cyan" onclick="toggleMobileMenu()">Investment</a>
+<div class="pt-3 border-t border-brand-border flex flex-col gap-2.5">
+<button onclick="openModal('pitchModal'); toggleMobileMenu();" class="w-full py-2.5 text-xs font-mono font-semibold text-slate-300 bg-brand-card border border-brand-border rounded-lg text-center">Request Pitch Deck</button>
+<button onclick="openModal('partnerModal'); toggleMobileMenu();" class="w-full py-2.5 text-xs font-mono font-bold text-brand-dark bg-brand-cyan rounded-lg text-center">Partner With Us</button>
+</div>
+</div>
+</header>
+
+<!-- HERO -->
+<section id="hero" class="relative min-h-[90vh] flex items-center justify-center pt-8 pb-20 radial-gradient-hero grid-bg overflow-hidden">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-7 space-y-6 text-left reveal">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-card border border-brand-border text-xs font-mono text-slate-300 shadow-inner">
+<span class="w-2 h-2 rounded-full bg-brand-cyan animate-pulse"></span>
+<span class="text-brand-cyan font-semibold">Start Focused. Build for Scale.</span>
+</div>
+<h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white tracking-tight leading-[1.05]">Earlier Insight.<br/>Better Decisions.<br/><span class="bg-gradient-to-r from-brand-cyan via-brand-teal to-blue-400 bg-clip-text text-transparent text-glow">Better Care.</span></h1>
+<p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl"><strong class="text-white font-semibold">IndraMed.ai</strong> is building toward a future where clinical AI helps healthcare professionals detect, investigate, and manage disease with greater intelligence — starting with chest imaging triage and evolving into holistic multimodal clinical workflows.</p>
+<div class="grid grid-cols-3 gap-3 pt-2 pb-2 stagger">
+<div class="bg-brand-card/90 border border-brand-border/80 p-3.5 rounded-xl hover:border-brand-cyan/30 transition-colors">
+<div class="text-xs text-slate-400 font-mono">Initial Target</div>
+<div class="text-base sm:text-lg font-bold text-white mt-0.5 font-display">Thoracic & TB</div>
+<div class="text-[11px] text-brand-cyan font-mono">High Burden Focus</div>
+</div>
+<div class="bg-brand-card/90 border border-brand-border/80 p-3.5 rounded-xl hover:border-brand-teal/30 transition-colors">
+<div class="text-xs text-slate-400 font-mono">Core Geographies</div>
+<div class="text-base sm:text-lg font-bold text-white mt-0.5 font-display">India & Central Asia</div>
+<div class="text-[11px] text-brand-teal font-mono">Global expansion path</div>
+</div>
+<div class="bg-brand-card/90 border border-brand-border/80 p-3.5 rounded-xl hover:border-brand-amber/30 transition-colors">
+<div class="text-xs text-slate-400 font-mono">Prototype Phase</div>
+<div class="text-base sm:text-lg font-bold text-white mt-0.5 font-display">2026 Milestone</div>
+<div class="text-[11px] text-brand-amber font-mono">Workflow & AI Models</div>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-4 pt-2">
+<a href="#demo" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-brand-cyan to-brand-teal text-brand-dark font-bold text-sm hover:shadow-[0_0_25px_rgba(0,240,255,0.5)] transition-all flex items-center gap-2 group"><span>Launch AI Imaging Demo</span><i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i></a>
+<button onclick="openModal('partnerModal')" class="px-6 py-3.5 rounded-xl bg-brand-card hover:bg-brand-cardHover border border-brand-border text-white font-semibold text-sm transition-all flex items-center gap-2"><i data-lucide="building-2" class="w-4 h-4 text-brand-cyan"></i><span>Partner With Us</span></button>
+<a href="#technology" class="px-4 py-3.5 text-slate-300 hover:text-brand-cyan text-sm font-medium transition-colors flex items-center gap-1.5"><span>Explore Technology</span><i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+</div>
+</div>
+<!-- Hero Interactive Graphic: Realistic Lungs -> Medical AI Network -->
+<div class="lg:col-span-5 relative reveal" style="transition-delay:.2s">
+<div class="relative w-full aspect-square max-w-[480px] mx-auto rounded-2xl bg-gradient-to-b from-brand-surface to-brand-card border border-brand-border/90 p-3 shadow-2xl overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-brand-cyan/10 to-transparent w-full h-16 animate-scanline pointer-events-none z-20"></div>
+<canvas id="heroLungCanvas" class="w-full h-full rounded-xl bg-black/60 cursor-crosshair relative z-10"></canvas>
+<div class="absolute top-6 left-6 z-20 pointer-events-none">
+<div class="flex items-center gap-2 font-mono text-[11px] text-brand-cyan bg-brand-dark/80 px-2.5 py-1 rounded border border-brand-border/60 backdrop-blur"><span class="w-1.5 h-1.5 rounded-full bg-brand-cyan animate-ping"></span><span>NEURAL MORPHOLOGY ENGINE</span></div>
+</div>
+<div class="absolute bottom-6 left-6 right-6 z-20 pointer-events-none">
+<div class="bg-brand-dark/85 backdrop-blur border border-brand-border/80 p-3 rounded-lg text-xs space-y-1">
+<div class="flex justify-between items-center text-[11px] font-mono"><span class="text-slate-400">Visualization Status:</span><span class="text-brand-teal font-semibold">Thoracic Network Active</span></div>
+<div class="text-[10px] text-slate-400">Realistic lungs transforming into medical-AI network — hover to stimulate synapse & CAD overlay.</div>
+</div>
+</div>
+<div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-brand-cyan/60 pointer-events-none"></div>
+<div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-brand-cyan/60 pointer-events-none"></div>
+<div class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-brand-cyan/60 pointer-events-none"></div>
+<div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-brand-cyan/60 pointer-events-none"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- VISION -->
+<section id="vision" class="py-24 bg-brand-surface border-y border-brand-border relative">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16 space-y-4 reveal">
+<span class="text-xs font-mono font-bold text-brand-cyan uppercase tracking-widest bg-brand-card px-3 py-1 rounded-full border border-brand-border">Core Thesis</span>
+<h2 class="text-3xl sm:text-4xl font-display font-bold text-white">“Start Focused. Build for Scale.”</h2>
+<p class="text-slate-300 text-sm sm:text-base leading-relaxed">Healthcare cannot be transformed overnight by unbounded promises. IndraMed.ai applies targeted, clinically grounded AI where diagnostic bottlenecks create the highest patient vulnerability — creating rigorous validation loops that establish foundation for multi-organ scale. Expansion from <strong class="text-white">India → Uzbekistan / Central Asia → International</strong> depends on evidence, regulation, partnerships and readiness.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 stagger">
+<div class="bg-brand-card border border-brand-border p-7 rounded-2xl relative overflow-hidden group hover:border-brand-cyan/50 hover:-translate-y-1 transition-all duration-300">
+<div class="w-12 h-12 rounded-xl bg-brand-cyan/10 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan mb-6"><i data-lucide="crosshair" class="w-6 h-6"></i></div>
+<h3 class="text-xl font-display font-bold text-white mb-3">1. Focused Clinical Impact</h3>
+<p class="text-slate-300 text-sm leading-relaxed">Prioritizing high-burden respiratory diseases, early thoracic triage, and tuberculosis screening where chest radiography is standard of care but expert radiological reading is severely constrained.</p>
+<div class="mt-6 pt-4 border-t border-brand-border/60 text-xs font-mono text-brand-cyan">Rapid Triage & Pattern Detection</div>
+</div>
+<div class="bg-brand-card border border-brand-border p-7 rounded-2xl relative overflow-hidden group hover:border-brand-teal/50 hover:-translate-y-1 transition-all duration-300">
+<div class="w-12 h-12 rounded-xl bg-brand-teal/10 border border-brand-teal/30 flex items-center justify-center text-brand-teal mb-6"><i data-lucide="layers" class="w-6 h-6"></i></div>
+<h3 class="text-xl font-display font-bold text-white mb-3">2. Beyond Mere Pixels</h3>
+<p class="text-slate-300 text-sm leading-relaxed">Computer vision alone is not enough. We combine image-level pattern analysis with structured clinical intelligence — suggesting guideline-adherent differential investigations, laboratory follow-ups, and risk stratification.</p>
+<div class="mt-6 pt-4 border-t border-brand-border/60 text-xs font-mono text-brand-teal">Structured Decision Support</div>
+</div>
+<div class="bg-brand-card border border-brand-border p-7 rounded-2xl relative overflow-hidden group hover:border-brand-blue/50 hover:-translate-y-1 transition-all duration-300">
+<div class="w-12 h-12 rounded-xl bg-brand-blue/20 border border-brand-blue/40 flex items-center justify-center text-blue-400 mb-6"><i data-lucide="globe" class="w-6 h-6"></i></div>
+<h3 class="text-xl font-display font-bold text-white mb-3">3. Phased Regional Scale</h3>
+<p class="text-slate-300 text-sm leading-relaxed">Anchoring initially in India and Central Asia (Uzbekistan) to address verified regional shortages before expanding globally. Every step is governed by evidence, regulatory clearance, and local clinical readiness.</p>
+<div class="mt-6 pt-4 border-t border-brand-border/60 text-xs font-mono text-blue-400">Evidence-Driven Expansion</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- STRATEGIC MARKETS -->
+<section id="markets" class="py-24 bg-brand-dark relative">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 reveal">
+<div class="max-w-2xl space-y-3">
+<span class="text-xs font-mono font-bold text-brand-teal uppercase tracking-widest bg-brand-card px-3 py-1 rounded-full border border-brand-border">Global Strategy & Epidemiology</span>
+<h2 class="text-3xl sm:text-4xl font-display font-bold text-white">Targeting Critical Healthcare Disparities</h2>
+<p class="text-slate-300 text-sm sm:text-base">Epidemiological urgency meets technological readiness. We focus on regions with massive screening demand and severe specialist deficits.</p>
+</div>
+<div class="text-xs font-mono text-slate-400 bg-brand-surface p-3 rounded-lg border border-brand-border">
+<div>Verified Citations: WHO Global TB Report 2025</div>
+<div>MoHFW / Central TB Division India | WHO Europe</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 stagger">
+<div class="bg-brand-surface border border-brand-border rounded-2xl p-7 flex flex-col justify-between hover:border-brand-cyan/40 transition-all relative overflow-hidden group hover:-translate-y-1 duration-300">
+<div class="space-y-4">
+<div class="flex items-center justify-between"><span class="px-2.5 py-1 rounded bg-brand-cyan/10 text-brand-cyan font-mono text-xs font-bold border border-brand-cyan/30">PRIMARY CORRIDOR</span><span class="text-slate-400 font-mono text-xs">Tier 1 Target</span></div>
+<h3 class="text-2xl font-display font-bold text-white flex items-center gap-2"><span>India</span><span class="text-sm font-sans font-normal text-slate-400">(South Asia)</span></h3>
+<p class="text-slate-300 text-xs sm:text-sm leading-relaxed">India accounts for approximately <strong class="text-white">27% of global tuberculosis burden — 2.8 million incident cases, 2024, WHO Global Tuberculosis Report 2025</strong>. Under the National TB Elimination Program (NTEP), massive chest X-ray screening campaigns face severe radiologist shortages in peripheral and district healthcare centers.</p>
+<div class="space-y-2 pt-2">
+<div class="flex justify-between text-xs py-1.5 border-b border-brand-border/60"><span class="text-slate-400 font-mono">Estimated Annual TB Burden</span><span class="font-bold text-white font-mono">~2.8M Cases (2024, WHO 2025)</span></div>
+<div class="flex justify-between text-xs py-1.5 border-b border-brand-border/60"><span class="text-slate-400 font-mono">Radiologist Density</span><span class="font-bold text-brand-alert font-mono">&lt; 1 per 100,000 (MoHFW)</span></div>
+<div class="flex justify-between text-xs py-1.5"><span class="text-slate-400 font-mono">Primary Opportunity</span><span class="font-bold text-brand-cyan font-mono">Frontline Triage at PHCs</span></div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-brand-border/60 text-[11px] text-slate-400 font-mono">Source: Central TB Division, MoHFW India & WHO Global TB Report 2025</div>
+</div>
+<div class="bg-brand-surface border border-brand-border rounded-2xl p-7 flex flex-col justify-between hover:border-brand-teal/40 transition-all relative overflow-hidden group hover:-translate-y-1 duration-300">
+<div class="space-y-4">
+<div class="flex items-center justify-between"><span class="px-2.5 py-1 rounded bg-brand-teal/10 text-brand-teal font-mono text-xs font-bold border border-brand-teal/30">CENTRAL ASIA HUB</span><span class="text-slate-400 font-mono text-xs">Strategic Focus</span></div>
+<h3 class="text-2xl font-display font-bold text-white flex items-center gap-2"><span>Uzbekistan</span><span class="text-sm font-sans font-normal text-slate-400">(Central Asia)</span></h3>
+<p class="text-slate-300 text-xs sm:text-sm leading-relaxed">Uzbekistan and Central Asian nations represent high priority zones for drug-resistant pulmonary infections and digital health modernization. Active healthcare digitalization initiatives by the Ministry of Health provide optimal pilot ecosystems. MDR/RR-TB remains high regional attention per WHO Europe 2024-2025.</p>
+<div class="space-y-2 pt-2">
+<div class="flex justify-between text-xs py-1.5 border-b border-brand-border/60"><span class="text-slate-400 font-mono">Digital Health Priority</span><span class="font-bold text-white font-mono">National E-Health Expansion</span></div>
+<div class="flex justify-between text-xs py-1.5 border-b border-brand-border/60"><span class="text-slate-400 font-mono">MDR/RR-TB Burden</span><span class="font-bold text-brand-amber font-mono">High Priority (WHO Europe, 2024)</span></div>
+<div class="flex justify-between text-xs py-1.5"><span class="text-slate-400 font-mono">Primary Opportunity</span><span class="font-bold text-brand-teal font-mono">Regional Hospital Pilots</span></div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-brand-border/60 text-[11px] text-slate-400 font-mono">Source: WHO Regional Office for Europe & MOH Uzbekistan, 2024-2025</div>
+</div>
+<div class="bg-brand-surface border border-brand-border rounded-2xl p-7 flex flex-col justify-between hover:border-brand-blue/40 transition-all relative overflow-hidden group hover:-translate-y-1 duration-300">
+<div class="space-y-4">
+<div class="flex items-center justify-between"><span class="px-2.5 py-1 rounded bg-brand-blue/20 text-blue-400 font-mono text-xs font-bold border border-brand-blue/40">PHASED EXPANSION</span><span class="text-slate-400 font-mono text-xs">Global Pipeline</span></div>
+<h3 class="text-2xl font-display font-bold text-white flex items-center gap-2"><span>International</span><span class="text-sm font-sans font-normal text-slate-400">(SE Asia, LatAm, Africa)</span></h3>
+<p class="text-slate-300 text-xs sm:text-sm leading-relaxed">Long-term international expansion is predicated on clinical trial evidence, software conformance standards (DICOM/HL7 FHIR), and territory-by-territory medical device regulatory authorizations (e.g., CDSCO, CE-MDR).</p>
+<div class="space-y-2 pt-2">
+<div class="flex justify-between text-xs py-1.5 border-b border-brand-border/60"><span class="text-slate-400 font-mono">Global TB Incident Cases</span><span class="font-bold text-white font-mono">10.8M Annually (2023, WHO 2025)</span></div>
+<div class="flex justify-between text-xs py-1.5 border-b border-brand-border/60"><span class="text-slate-400 font-mono">Diagnostic Gap</span><span class="font-bold text-brand-cyan font-mono">~2.7M Undiagnosed/Year (WHO 2025)</span></div>
+<div class="flex justify-between text-xs py-1.5"><span class="text-slate-400 font-mono">Expansion Criteria</span><span class="font-bold text-white font-mono">Evidence & Regulatory Gate</span></div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-brand-border/60 text-[11px] text-slate-400 font-mono">Source: WHO Global Tuberculosis Report 2025</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- INTERACTIVE AI IMAGING STUDIO DEMO - UPGRADED WITH REAL CAMERA & UPLOAD -->
+<section id="demo" class="py-24 bg-brand-card relative border-y border-brand-border overflow-hidden">
+<div class="absolute inset-0 grid-bg opacity-40 pointer-events-none"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-brand-cyan/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+<div class="text-center max-w-3xl mx-auto mb-8 space-y-3 reveal">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full synthetic-badge border border-brand-amber/40 text-brand-amber font-mono text-xs font-bold tracking-wide shadow-sm"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-brand-amber"></i><span>DEMO / SYNTHETIC RESULT — NOT FOR CLINICAL USE</span></div>
+<h2 class="text-3xl sm:text-4xl font-display font-extrabold text-white">Interactive AI Imaging & Intelligence Demo</h2>
+<p class="text-slate-300 text-xs sm:text-sm">Test our prototype vision workflow simulator. Toggle diagnostic overlays, inspect lung segmentations, evaluate image quality checks, and review structured clinical follow-up differentials. For real images, use Camera & Upload — architecture ready for future real model/API.</p>
+<div class="flex items-center justify-center gap-2 text-[11px] font-mono text-slate-400"><span class="w-2 h-2 rounded-full bg-brand-teal animate-pulse"></span> AI-assisted screening support. Does not replace clinical assessment or confirmatory testing.</div>
+</div>
+
+<!-- Demo Mode Switcher -->
+<div class="max-w-7xl mx-auto mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 reveal">
+<div class="flex items-center p-1 bg-brand-dark rounded-xl border border-brand-border">
+<button id="modeDemoBtn" onclick="switchDemoMode('demo')" class="px-5 py-2 rounded-lg text-xs font-mono font-bold bg-brand-cyan text-brand-dark shadow transition-all">Demo Cases</button>
+<button id="modeLiveBtn" onclick="switchDemoMode('live')" class="px-5 py-2 rounded-lg text-xs font-mono font-bold text-slate-400 hover:text-white transition-all">Camera & Upload (Real X-ray)</button>
+</div>
+<div class="flex items-center gap-2 text-[11px] font-mono">
+<span class="px-2.5 py-1 rounded bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan">DICOM • JPG • PNG • WEBP</span>
+<span class="px-2.5 py-1 rounded bg-brand-surface border border-brand-border text-slate-400">POST /api/analyze-xray</span>
+</div>
+</div>
+
+<div class="bg-brand-surface border border-brand-border rounded-2xl shadow-2xl overflow-hidden reveal">
+<div class="bg-brand-dark/95 border-b border-brand-border px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1.5 text-xs font-mono font-semibold text-brand-cyan"><span class="w-2 h-2 rounded-full bg-brand-cyan animate-pulse"></span><span id="sessionLabel">SESSION: CXR-SYNTH-2026-v04</span></span>
+<span class="text-slate-600 hidden sm:inline">|</span>
+<span class="text-xs text-slate-400 font-mono hidden sm:inline">Modality: Digital Radiography (PA View)</span>
+</div>
+<div id="demoCaseSelectors" class="flex items-center gap-2">
+<span class="text-xs font-mono text-slate-400 mr-1 hidden md:inline">Synthetic Cases:</span>
+<button onclick="loadCase('case1')" id="btnCase1" class="px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-brand-card hover:bg-brand-cyan/20 border border-brand-cyan text-brand-cyan transition-all">Case A: Cavitary/TB Infiltrate</button>
+<button onclick="loadCase('case2')" id="btnCase2" class="px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-brand-card hover:bg-brand-cardHover border border-brand-border text-slate-300 transition-all">Case B: Lobar Consolidation</button>
+<button onclick="loadCase('case3')" id="btnCase3" class="px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-brand-card hover:bg-brand-cardHover border border-brand-border text-slate-300 transition-all">Case C: Normal Screen</button>
+</div>
+<div id="liveSessionLabel" class="hidden flex items-center gap-2 text-xs font-mono text-brand-teal"><i data-lucide="camera" class="w-3.5 h-3.5"></i> Live Camera & Upload — Real Image Mode</div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 min-h-[620px]">
+<!-- Left: Viewer -->
+<div class="lg:col-span-7 p-5 bg-black flex flex-col relative border-b lg:border-b-0 lg:border-r border-brand-border">
+<!-- DEMO viewer header -->
+<div id="demoViewerHeader" class="flex flex-wrap items-center justify-between gap-2 mb-3 z-20">
+<div class="flex items-center gap-1.5 bg-brand-card/80 backdrop-blur px-2.5 py-1 rounded border border-brand-border text-xs font-mono text-slate-300"><i data-lucide="eye" class="w-3.5 h-3.5 text-brand-cyan"></i><span id="activeLayerText">Layer: AI Heatmap + Annotations</span></div>
+<div class="flex items-center gap-1 bg-brand-card/80 p-1 rounded-lg border border-brand-border text-[11px] font-mono">
+<button onclick="toggleOverlay('heatmap')" id="toggleHeatmapBtn" class="px-2 py-0.5 rounded bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/40">Heatmap</button>
+<button onclick="toggleOverlay('boxes')" id="toggleBoxesBtn" class="px-2 py-0.5 rounded bg-brand-card text-slate-400 hover:text-white">Boxes</button>
+<button onclick="toggleOverlay('segmentation')" id="toggleSegBtn" class="px-2 py-0.5 rounded bg-brand-card text-slate-400 hover:text-white">Lung Zones</button>
+<button onclick="toggleOverlay('raw')" id="toggleRawBtn" class="px-2 py-0.5 rounded bg-brand-card text-slate-400 hover:text-white">Raw CXR</button>
+</div>
+</div>
+
+<!-- LIVE viewer header -->
+<div id="liveViewerHeader" class="hidden flex-wrap items-center justify-between gap-2 mb-3 z-20">
+<div class="flex items-center gap-2">
+<button onclick="openCamera()" id="openCameraBtn" class="px-4 py-2 rounded-lg bg-brand-cyan hover:bg-white text-brand-dark font-mono font-bold text-xs flex items-center gap-1.5 transition-colors"><i data-lucide="camera" class="w-4 h-4"></i> Scan X-Ray (Open Rear Camera)</button>
+<button onclick="triggerUpload()" class="px-4 py-2 rounded-lg bg-brand-card hover:bg-brand-cardHover border border-brand-border text-white font-mono font-bold text-xs flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4 text-brand-cyan"></i> Upload X-Ray</button>
+</div>
+<span class="text-[10px] font-mono text-slate-500">JPG • PNG • WEBP • Max 10MB</span>
+</div>
+<input type="file" id="xrayFileInput" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="hidden" />
+
+<!-- DEMO Canvas Area -->
+<div id="demoCanvasWrap" class="relative w-full aspect-square max-h-[480px] mx-auto bg-slate-950 rounded-xl overflow-hidden border border-brand-border/60 flex items-center justify-center">
+<canvas id="xrayCanvas" width="500" height="500" class="w-full h-full object-contain cursor-crosshair"></canvas>
+<div class="absolute bottom-3 right-3 bg-brand-amber/20 border border-brand-amber/50 px-2 py-1 rounded text-[10px] font-mono font-bold text-brand-amber pointer-events-none backdrop-blur-sm">SYNTHETIC PROTOTYPE DATA</div>
+<div class="absolute top-3 left-3 bg-brand-dark/80 backdrop-blur border border-brand-border px-2.5 py-1.5 rounded text-[10px] font-mono space-y-0.5 pointer-events-none">
+<div class="text-slate-400">QC SCORE: <span class="text-brand-teal font-bold" id="qcScore">98.4% (Optimal)</span></div>
+<div class="text-slate-400">EXP/ROT: <span class="text-white" id="qcExp">Adequate / Centered</span></div>
+</div>
+<div id="canvasCoordinates" class="absolute top-3 right-3 bg-brand-dark/80 text-slate-400 text-[9px] font-mono px-2 py-1 rounded border border-brand-border hidden sm:block pointer-events-none">X: 248 | Y: 182 | HU: -450</div>
+</div>
+
+<!-- LIVE Camera & Preview Area -->
+<div id="liveCanvasWrap" class="hidden relative w-full max-h-[480px] mx-auto bg-slate-950 rounded-xl overflow-hidden border border-brand-border/60 flex-col">
+<!-- Camera View -->
+<div id="cameraView" class="hidden relative w-full aspect-square max-h-[480px] bg-black flex items-center justify-center overflow-hidden">
+<video id="cameraVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+<div class="absolute inset-0 pointer-events-none border-2 border-brand-cyan/40 m-6 rounded-xl flex items-center justify-center">
+<div class="w-6 h-6 border-t-2 border-l-2 border-brand-cyan absolute top-0 left-0 -mt-1 -ml-1"></div>
+<div class="w-6 h-6 border-t-2 border-r-2 border-brand-cyan absolute top-0 right-0 -mt-1 -mr-1"></div>
+<div class="w-6 h-6 border-b-2 border-l-2 border-brand-cyan absolute bottom-0 left-0 -mb-1 -ml-1"></div>
+<div class="w-6 h-6 border-b-2 border-r-2 border-brand-cyan absolute bottom-0 right-0 -mb-1 -mr-1"></div>
+<div class="bg-brand-dark/70 px-2 py-1 rounded text-[10px] font-mono text-brand-cyan">Align X-ray film within frame</div>
+</div>
+<div class="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-3">
+<button onclick="capturePhoto()" id="captureBtn" class="w-14 h-14 rounded-full bg-white border-4 border-brand-cyan shadow-[0_0_20px_rgba(0,240,255,.6)] flex items-center justify-center hover:scale-105 transition-transform"><i data-lucide="camera" class="w-6 h-6 text-brand-dark"></i></button>
+<button onclick="closeCamera()" class="px-3 py-2 rounded-lg bg-brand-dark/80 border border-brand-border text-xs font-mono text-slate-300">Cancel</button>
+</div>
+<div class="absolute top-3 left-3 bg-brand-dark/80 px-2 py-1 rounded text-[10px] font-mono text-brand-cyan border border-brand-border">Rear Camera • facingMode: environment</div>
+</div>
+<!-- Image Preview -->
+<div id="livePreviewContainer" class="hidden relative w-full aspect-square max-h-[480px] bg-black flex items-center justify-center overflow-hidden">
+<img id="livePreviewImg" class="max-w-full max-h-full object-contain select-none" draggable="false" />
+<canvas id="liveCanvas" class="hidden w-full h-full object-contain"></canvas>
+<div id="cropOverlay" class="hidden absolute inset-6 border-2 border-dashed border-brand-cyan/70 bg-brand-cyan/5 pointer-events-none"></div>
+<div class="absolute bottom-3 left-3 bg-brand-dark/80 backdrop-blur border border-brand-border px-2 py-1 rounded text-[10px] font-mono text-slate-300">Real Captured / Uploaded Image</div>
+<div class="absolute top-3 right-3 flex gap-1">
+<button onclick="retakePhoto()" class="px-2.5 py-1 rounded bg-brand-dark/80 border border-brand-border text-[11px] font-mono text-slate-300 hover:text-white">Retake</button>
+<button onclick="clearLiveImage()" class="px-2.5 py-1 rounded bg-brand-alert/20 border border-brand-alert/40 text-[11px] font-mono text-brand-alert">Clear</button>
+</div>
+</div>
+<!-- Empty State -->
+<div id="liveEmptyState" class="w-full aspect-square max-h-[480px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-brand-border/60 rounded-xl bg-slate-950/50">
+<div class="w-16 h-16 rounded-2xl bg-brand-card border border-brand-border flex items-center justify-center mb-4"><i data-lucide="scan-line" class="w-8 h-8 text-brand-cyan"></i></div>
+<h4 class="text-white font-display font-bold">Scan or Upload a Chest X-ray</h4>
+<p class="text-xs text-slate-400 font-mono mt-1 max-w-[300px]">Open rear camera to capture an X-ray film on a lightbox, or upload JPG/PNG/WEBP. Image stays on device until you tap Analyze.</p>
+<div class="flex gap-2 mt-4">
+<button onclick="openCamera()" class="px-4 py-2 rounded-lg bg-brand-cyan text-brand-dark font-bold text-xs font-mono">Scan X-Ray</button>
+<button onclick="triggerUpload()" class="px-4 py-2 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-white">Upload File</button>
+</div>
+<p class="text-[10px] text-slate-500 font-mono mt-3">Browser will show native permission prompt for camera.</p>
+</div>
+<!-- Permission Error -->
+<div id="cameraErrorBox" class="hidden absolute inset-0 bg-brand-dark/95 backdrop-blur p-6 flex flex-col items-center justify-center text-center">
+<div class="w-12 h-12 rounded-xl bg-brand-alert/20 border border-brand-alert/40 flex items-center justify-center mb-3"><i data-lucide="video-off" class="w-6 h-6 text-brand-alert"></i></div>
+<h4 class="text-white font-bold font-display text-sm">Camera Permission Denied</h4>
+<p class="text-xs text-slate-400 mt-1 max-w-sm">Browser blocked camera access. Please allow camera permission in your browser settings, then try again. You can also upload an image instead.</p>
+<div class="flex gap-2 mt-4">
+<button onclick="openCamera()" class="px-4 py-2 rounded-lg bg-brand-cyan text-brand-dark font-bold text-xs font-mono">Try Again</button>
+<button onclick="triggerUpload()" class="px-4 py-2 rounded-lg bg-brand-card border border-brand-border text-white text-xs font-mono">Upload Instead</button>
+<button onclick="hideCameraError()" class="px-3 py-2 text-xs font-mono text-slate-400">Dismiss</button>
+</div>
+</div>
+</div>
+
+<!-- Bottom Controls -->
+<div id="demoBottomControls" class="grid grid-cols-2 gap-4 mt-3 bg-brand-card/50 p-2.5 rounded-lg border border-brand-border text-xs font-mono">
+<div class="flex items-center gap-2"><span class="text-slate-400">AI Sensitivity:</span><input type="range" id="sensitivitySlider" min="10" max="99" value="85" class="w-full h-1 bg-slate-700 rounded-lg cursor-pointer" oninput="updateSensitivity(this.value)"><span id="sensitivityVal" class="text-brand-cyan font-bold">85%</span></div>
+<div class="flex items-center gap-2"><span class="text-slate-400">Grad-CAM Opacity:</span><input type="range" id="opacitySlider" min="0" max="100" value="70" class="w-full h-1 bg-slate-700 rounded-lg cursor-pointer" oninput="updateOpacity(this.value)"><span id="opacityVal" class="text-brand-teal font-bold">70%</span></div>
+</div>
+<div id="liveEditControls" class="hidden mt-3 bg-brand-card/60 p-3 rounded-xl border border-brand-border space-y-3">
+<div class="grid grid-cols-2 gap-3 text-xs font-mono">
+<div class="flex items-center gap-2"><span class="text-slate-400 w-20">Brightness</span><input type="range" id="brightnessSlider" min="60" max="160" value="100" class="flex-1 h-1 bg-slate-700 rounded-lg" oninput="updateLiveFilters()"><span id="brightnessVal" class="text-brand-cyan w-10">100%</span></div>
+<div class="flex items-center gap-2"><span class="text-slate-400 w-20">Contrast</span><input type="range" id="contrastSlider" min="60" max="160" value="100" class="flex-1 h-1 bg-slate-700 rounded-lg" oninput="updateLiveFilters()"><span id="contrastVal" class="text-brand-teal w-10">100%</span></div>
+</div>
+<div class="flex flex-wrap items-center gap-2">
+<button onclick="rotateLive(-90)" class="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-300 hover:text-white flex items-center gap-1"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Rotate Left</button>
+<button onclick="rotateLive(90)" class="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-300 hover:text-white flex items-center gap-1"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Rotate Right</button>
+<button onclick="toggleCrop()" id="cropBtn" class="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-300 hover:text-white flex items-center gap-1"><i data-lucide="crop" class="w-3.5 h-3.5"></i> Crop Center 85%</button>
+<button onclick="resetLiveEdits()" class="px-3 py-1.5 rounded-lg bg-brand-dark border border-brand-border text-xs font-mono text-slate-400">Reset</button>
+<span class="text-[10px] font-mono text-slate-500 ml-auto">Edits applied locally before Analyze</span>
+</div>
+</div>
+
+</div>
+<!-- Right Panel -->
+<div class="lg:col-span-5 p-6 bg-brand-surface flex flex-col justify-between space-y-6">
+<!-- DEMO Right -->
+<div id="demoRightPanel" class="space-y-6">
+<div>
+<div class="flex items-center justify-between pb-3 border-b border-brand-border">
+<div><h4 class="text-base font-display font-bold text-white flex items-center gap-2"><i data-lucide="cpu" class="w-4 h-4 text-brand-cyan"></i> AI Structured Analysis</h4><p class="text-[11px] font-mono text-slate-400">Automated Triage & Finding Extraction</p></div>
+<span id="riskBadge" class="px-2.5 py-1 rounded font-mono text-xs font-bold bg-brand-alert/20 text-brand-alert border border-brand-alert/40">HIGH SUSPICION</span>
+</div>
+<div class="mt-4 space-y-3">
+<div class="bg-brand-card p-3.5 rounded-xl border border-brand-border">
+<div class="flex justify-between items-center text-xs font-mono mb-1.5"><span class="text-slate-300 font-semibold" id="primaryFindingTitle">Apical Infiltration & Cavitary Pattern</span><span class="text-brand-cyan font-bold" id="primaryFindingConfidence">94.2% Conf.</span></div>
+<div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mb-2"><div id="confidenceBar" class="bg-gradient-to-r from-brand-cyan to-brand-alert h-full w-[94.2%] transition-all duration-500"></div></div>
+<p class="text-xs text-slate-300 leading-normal" id="primaryFindingDesc">Focal opacity with central radiolucency observed in the Right Upper Lobe (RUL). Morphology is highly indicative of active mycobacterial lesion or secondary cavitary process.</p>
+</div>
+<div class="grid grid-cols-2 gap-2 text-xs font-mono">
+<div class="bg-brand-card p-2.5 rounded-lg border border-brand-border"><div class="text-slate-400 text-[10px]">LUNG EXPANSION</div><div class="text-white font-semibold mt-0.5" id="obsExpansion">Symmetric / Clear Bases</div></div>
+<div class="bg-brand-card p-2.5 rounded-lg border border-brand-border"><div class="text-slate-400 text-[10px]">CARDIAC SILHOUETTE</div><div class="text-white font-semibold mt-0.5" id="obsCardiac">CTR &lt; 0.50 (Normal)</div></div>
+</div>
+</div>
+</div>
+<div class="space-y-2.5">
+<div class="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-300"><i data-lucide="clipboard-check" class="w-4 h-4 text-brand-teal"></i><span>SUGGESTED CLINICAL INVESTIGATION & TRIAGE:</span></div>
+<div class="bg-brand-card/90 rounded-xl p-3.5 border border-brand-border text-xs space-y-2">
+<div class="flex items-start gap-2" id="recStep1"><span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span><p class="text-slate-300"><strong class="text-white">Confirmatory Molecular Assay:</strong> Sputum GeneXpert (CBNAAT) / Truenat MTB/RIF recommended per WHO & NTEP guidelines.</p></div>
+<div class="flex items-start gap-2" id="recStep2"><span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span><p class="text-slate-300"><strong class="text-white">Clinical Triage:</strong> Flag for expedited review by Medical Officer / Pulmonologist within 24 hours.</p></div>
+<div class="flex items-start gap-2" id="recStep3"><span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span><p class="text-slate-300"><strong class="text-white">Infection Control:</strong> Advise standard respiratory hygiene & community contact tracing protocol.</p></div>
+</div>
+</div>
+<div class="pt-3 border-t border-brand-border/80 flex items-center justify-between">
+<div class="text-[10px] font-mono text-slate-400"><span class="text-brand-amber font-bold">WARNING:</span> Simulation only.</div>
+<button onclick="simulateReportGeneration()" class="px-3.5 py-2 rounded-lg bg-brand-card hover:bg-brand-cardHover border border-brand-border text-xs font-mono font-semibold text-brand-cyan hover:text-white transition-all flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>Export Synthetic PDF Report</span></button>
+</div>
+</div>
+
+<!-- LIVE Right -->
+<div id="liveRightPanel" class="hidden space-y-5">
+<div class="flex items-center justify-between pb-3 border-b border-brand-border">
+<div><h4 class="text-base font-display font-bold text-white flex items-center gap-2"><i data-lucide="scan-search" class="w-4 h-4 text-brand-teal"></i> Real X-ray Analysis</h4><p class="text-[11px] font-mono text-slate-400">Camera & Upload → Backend Inference</p></div>
+<span class="px-2 py-1 rounded font-mono text-[11px] font-bold bg-brand-amber/15 text-brand-amber border border-brand-amber/30">REAL IMAGE MODE</span>
+</div>
+
+<div id="liveNoImageBox" class="bg-brand-card p-4 rounded-xl border border-brand-border text-center">
+<div class="w-10 h-10 mx-auto rounded-xl bg-brand-dark border border-brand-border flex items-center justify-center mb-2"><i data-lucide="image-plus" class="w-5 h-5 text-slate-400"></i></div>
+<p class="text-xs text-slate-300 font-medium">No X-ray selected yet</p>
+<p class="text-[11px] text-slate-500 font-mono mt-1">Capture with rear camera or upload a file to enable Analyze.</p>
+</div>
+
+<div id="liveReadyBox" class="hidden bg-brand-card p-4 rounded-xl border border-brand-teal/30 space-y-3">
+<div class="flex items-center gap-2 text-xs font-mono font-bold text-brand-teal"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Image ready for AI inference</div>
+<div class="text-xs text-slate-300">Tap <strong class="text-white">Analyze X-Ray</strong> to send the actual image to the AI backend via secure multipart upload.</div>
+<div class="text-[11px] font-mono text-slate-400">Endpoint: <span class="text-white">POST /api/analyze-xray</span> • Field: <span class="text-white">image</span></div>
+<button id="analyzeLiveBtn" onclick="analyzeLiveImage()" class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-cyan to-brand-teal text-brand-dark font-bold font-mono text-sm hover:shadow-[0_0_20px_rgba(0,240,255,.5)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"><i data-lucide="sparkles" class="w-4 h-4"></i> Analyze X-Ray</button>
+<div class="text-[10px] font-mono text-slate-400 text-center">AI-assisted screening support. Does not replace clinical assessment or confirmatory testing.</div>
+<div id="liveAnalyzeStatus" class="hidden flex items-center gap-2 text-xs font-mono text-brand-cyan bg-brand-dark p-2.5 rounded-lg border border-brand-border"><span class="w-3 h-3 border-2 border-brand-cyan border-t-transparent rounded-full animate-spin"></span> Sending image to AI backend…</div>
+</div>
+
+<div id="liveBackendError" class="hidden bg-brand-alert/10 border border-brand-alert/30 p-4 rounded-xl space-y-2">
+<div class="flex items-center gap-2 text-xs font-bold font-mono text-brand-alert"><i data-lucide="wifi-off" class="w-4 h-4"></i> AI inference backend not connected — Try Demo Case</div>
+<p class="text-xs text-slate-300">We couldn't reach <span class="font-mono text-white">POST /api/analyze-xray</span>. The image was not analyzed. Switch to Demo Cases to explore synthetic workflow, or configure your model endpoint and retry.</p>
+<button onclick="switchDemoMode('demo')" class="px-3 py-2 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-brand-cyan">→ Explore Demo Cases</button>
+<div class="text-[11px] font-mono text-slate-500">To connect a real model, set <span class="text-slate-300">window.INDRA_API_URL</span> to your deployed endpoint. Response must drive predictions, confidence & heatmap — no hard-coded results.</div>
+</div>
+
+<div id="liveResultBox" class="hidden bg-brand-card p-4 rounded-xl border border-brand-cyan/30 space-y-3">
+<div class="flex items-center justify-between"><span class="text-xs font-mono font-bold text-brand-cyan">Backend Response</span><span id="liveResultTime" class="text-[10px] font-mono text-slate-500"></span></div>
+<div id="liveResultContent" class="space-y-2 text-xs text-slate-300"></div>
+<div id="liveHeatmapNote" class="hidden text-[11px] font-mono text-slate-400 p-2 bg-brand-dark rounded border border-brand-border">Heatmap overlay received from backend and rendered above.</div>
+<div class="flex gap-2">
+<button onclick="clearLiveImage()" class="px-3 py-1.5 rounded-lg bg-brand-dark border border-brand-border text-xs font-mono text-slate-300">Analyze Another</button>
+<button onclick="switchDemoMode('demo')" class="px-3 py-1.5 rounded-lg bg-brand-cyan/10 border border-brand-cyan/30 text-xs font-mono text-brand-cyan">Try Demo Case</button>
+</div>
+</div>
+
+<div class="bg-brand-dark border border-brand-border rounded-xl p-3 text-[11px] font-mono text-slate-400 space-y-1">
+<div class="font-bold text-slate-300">Security & Privacy Note</div>
+<div>Images are processed via encrypted transport, role-based access, and data minimization. Stored only as needed for analysis. Do not claim HIPAA/GDPR/certification unless implemented.</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-3 text-center text-[10px] font-mono text-slate-500">DEMO / SYNTHETIC RESULT — NOT FOR CLINICAL USE • Live mode shows only backend-driven results • AI-assisted screening support. Does not replace clinical assessment or confirmatory testing.</div>
+</div>
+</div>
+</section>
+
+<!-- TECHNOLOGY -->
+<section id="technology" class="py-24 bg-brand-surface relative">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16 space-y-4 reveal">
+<span class="text-xs font-mono font-bold text-brand-cyan uppercase tracking-widest bg-brand-card px-3 py-1 rounded-full border border-brand-border">Architecture & Intelligence Stack</span>
+<h2 class="text-3xl sm:text-4xl font-display font-bold text-white">Dual-Engine Clinical AI Architecture</h2>
+<p class="text-slate-300 text-sm sm:text-base leading-relaxed">Engineered for interoperability in resource-constrained environments without compromising state-of-the-art vision or data privacy.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 stagger">
+<div class="bg-brand-card p-6 rounded-2xl border border-brand-border hover:border-brand-cyan/50 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+<div><div class="w-10 h-10 rounded-lg bg-brand-cyan/10 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan mb-4"><i data-lucide="scan" class="w-5 h-5"></i></div><h3 class="text-lg font-display font-bold text-white mb-2">Automated Quality Control</h3><p class="text-slate-300 text-xs leading-relaxed">Detects motion artifact, improper patient rotation, clipping of costophrenic angles, and incorrect radiation exposure before AI inference to prevent false positives.</p></div><div class="mt-4 pt-3 border-t border-brand-border/60 text-[11px] font-mono text-brand-cyan">Pre-Inference QA Layer</div>
+</div>
+<div class="bg-brand-card p-6 rounded-2xl border border-brand-border hover:border-brand-teal/50 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+<div><div class="w-10 h-10 rounded-lg bg-brand-teal/10 border border-brand-teal/30 flex items-center justify-center text-brand-teal mb-4"><i data-lucide="binary" class="w-5 h-5"></i></div><h3 class="text-lg font-display font-bold text-white mb-2">Multi-Scale Vision Backbone</h3><p class="text-slate-300 text-xs leading-relaxed">Ensemble convolutional and vision transformer (ViT) architectures trained to segment thoracic zones, identify opacities, nodules, cavities, effusions, and cardiomegaly.</p></div><div class="mt-4 pt-3 border-t border-brand-border/60 text-[11px] font-mono text-brand-teal">Deep Computer Vision</div>
+</div>
+<div class="bg-brand-card p-6 rounded-2xl border border-brand-border hover:border-brand-blue/50 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+<div><div class="w-10 h-10 rounded-lg bg-brand-blue/20 border border-brand-blue/40 flex items-center justify-center text-blue-400 mb-4"><i data-lucide="git-branch" class="w-5 h-5"></i></div><h3 class="text-lg font-display font-bold text-white mb-2">Structured Reasoning Agent</h3><p class="text-slate-300 text-xs leading-relaxed">Synthesizes imaging heatmaps with WHO guidelines and NTEP triage protocols to generate structured clinician summaries and recommended confirmatory investigations.</p></div><div class="mt-4 pt-3 border-t border-brand-border/60 text-[11px] font-mono text-blue-400">Clinical Decision Support</div>
+</div>
+<div class="bg-brand-card p-6 rounded-2xl border border-brand-border hover:border-brand-amber/50 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+<div><div class="w-10 h-10 rounded-lg bg-brand-amber/10 border border-brand-amber/30 flex items-center justify-center text-brand-amber mb-4"><i data-lucide="server" class="w-5 h-5"></i></div><h3 class="text-lg font-display font-bold text-white mb-2">Edge & DICOM Ready</h3><p class="text-slate-300 text-xs leading-relaxed">Designed for lightweight containerized deployment on edge gateway devices in rural health clinics with zero dependable internet, as well as cloud PACS integrations.</p></div><div class="mt-4 pt-3 border-t border-brand-border/60 text-[11px] font-mono text-brand-amber">Offline Edge Capable</div>
+</div>
+</div>
+<div class="mt-12 bg-brand-dark border border-brand-border rounded-2xl p-6 sm:p-8 reveal">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+<div class="space-y-2 max-w-2xl">
+<div class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-brand-teal"><i data-lucide="shield-check" class="w-4 h-4"></i><span>SECURITY & PRIVACY-BY-DESIGN POSTURE</span></div>
+<h4 class="text-xl font-display font-bold text-white">Ethical Architecture & Data Safeguards</h4>
+<p class="text-xs sm:text-sm text-slate-300 leading-relaxed">IndraMed.ai enforces authentication, role-based access controls (RBAC), encryption in transit (TLS 1.3), encrypted secure storage (AES-256), strict audit logging, data minimization, automated PHI de-identification, and privacy-by-design.</p>
+<p class="text-[11px] text-slate-400 font-mono">*We do not claim HIPAA, GDPR, or device certification unless formally implemented and audited.</p>
+</div>
+<div class="flex flex-wrap gap-2 shrink-0">
+<span class="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-300">Authentication & RBAC</span>
+<span class="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-300">TLS 1.3 Encryption</span>
+<span class="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-300">AES-256 Secure Storage</span>
+<span class="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-300">Audit Logging</span>
+<span class="px-3 py-1.5 rounded-lg bg-brand-card border border-brand-border text-xs font-mono text-slate-300">Data Minimization</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="py-24 bg-brand-dark relative">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16 space-y-4 reveal">
+<span class="text-xs font-mono font-bold text-brand-cyan uppercase tracking-widest bg-brand-card px-3 py-1 rounded-full border border-brand-border">Execution Milestones</span>
+<h2 class="text-3xl sm:text-4xl font-display font-bold text-white">Disciplined, Evidence-Led Roadmap</h2>
+<p class="text-slate-300 text-sm sm:text-base leading-relaxed">From early technical validation to multi-center clinical studies and regulatory readiness. No approval-date promises — timelines depend on evidence, partnerships and regulatory review.</p>
+</div>
+<div class="relative border-l-2 border-brand-border/80 ml-4 md:ml-32 space-y-12">
+<div class="relative pl-8 md:pl-12 group reveal">
+<div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-brand-cyan shadow-[0_0_12px_rgba(0,240,255,0.8)] border-2 border-brand-dark"></div>
+<div class="md:absolute md:-left-32 md:top-1 font-mono text-xs font-bold text-brand-cyan">2026 (CURRENT)</div>
+<div class="bg-brand-surface border border-brand-cyan/40 p-6 rounded-2xl shadow-lg">
+<div class="flex items-center justify-between mb-2"><h3 class="text-xl font-display font-bold text-white">Prototype, AI Imaging Workflow & Clinical Intelligence</h3><span class="px-2.5 py-0.5 rounded bg-brand-cyan/10 text-brand-cyan font-mono text-xs font-semibold">Active Milestone</span></div>
+<p class="text-slate-300 text-sm leading-relaxed mb-4">Completion of core synthetic simulator, DICOM ingestion pipeline, baseline thoracic deep learning model architecture, image quality checks, and clinician-facing structured report generator.</p>
+<div class="flex flex-wrap gap-2 text-xs font-mono text-slate-400"><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">✓ CXR Quality Check</span><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">✓ Synthetic Triage Simulator</span><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">✓ Clinical Intelligence Draft</span></div>
+</div>
+</div>
+<div class="relative pl-8 md:pl-12 group reveal">
+<div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-600 group-hover:bg-brand-teal transition-colors border-2 border-brand-dark"></div>
+<div class="md:absolute md:-left-32 md:top-1 font-mono text-xs font-bold text-slate-400">NEXT</div>
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl hover:border-brand-teal/40 transition-all">
+<h3 class="text-xl font-display font-bold text-white mb-2">AI Model Development, Dataset Strategy & Validation</h3>
+<p class="text-slate-300 text-sm leading-relaxed mb-4">Acquisition and annotation of diverse, de-identified real-world datasets across multiple X-ray scanner manufacturers, demographics and co-morbidities; model maturation and robustness testing.</p>
+<div class="flex flex-wrap gap-2 text-xs font-mono text-slate-400"><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">Multi-Manufacturer Ingestion</span><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">Expert Radiologist Ground Truth</span><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">Bias & Robustness Tests</span></div>
+</div>
+</div>
+<div class="relative pl-8 md:pl-12 group reveal">
+<div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-600 group-hover:bg-brand-blue transition-colors border-2 border-brand-dark"></div>
+<div class="md:absolute md:-left-32 md:top-1 font-mono text-xs font-bold text-slate-400">THEN</div>
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl hover:border-brand-blue/40 transition-all">
+<h3 class="text-xl font-display font-bold text-white mb-2">Clinical Partnerships, External Validation & Pilot Deployment</h3>
+<p class="text-slate-300 text-sm leading-relaxed mb-4">Partnering with medical institutions in India and Uzbekistan for blind retrospective validation and supervised pilot deployments in district centers and mobile screening vans.</p>
+<div class="flex flex-wrap gap-2 text-xs font-mono text-slate-400"><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">IRB / Ethics Review</span><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">External Validation</span><span class="bg-brand-card px-2.5 py-1 rounded border border-brand-border">Supervised Pilots</span></div>
+</div>
+</div>
+<div class="relative pl-8 md:pl-12 group reveal">
+<div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-2 border-brand-dark"></div>
+<div class="md:absolute md:-left-32 md:top-1 font-mono text-xs font-bold text-slate-400">LONG TERM</div>
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl">
+<h3 class="text-xl font-display font-bold text-white mb-2">Regulatory Expansion, India + Uzbekistan Deployment & Broader Disease Applications</h3>
+<p class="text-slate-300 text-sm leading-relaxed mb-4">Formal SaMD regulatory submissions (CDSCO, CE-MDR pathway alignment) and broadening AI intelligence beyond thoracic TB to abdominal and bone pathology, contingent on evidence and authorizations.</p>
+<div class="text-xs font-mono text-slate-400">*No promises regarding approval dates; strictly governed by clinical evidence and statutory agency review.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- TEAM -->
+<section id="team" class="py-24 bg-brand-surface border-y border-brand-border relative">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16 space-y-4 reveal">
+<span class="text-xs font-mono font-bold text-brand-teal uppercase tracking-widest bg-brand-card px-3 py-1 rounded-full border border-brand-border">Team & Capabilities</span>
+<h2 class="text-3xl sm:text-4xl font-display font-bold text-white">Building the Team Behind IndraMed.ai</h2>
+<p class="text-slate-300 text-sm sm:text-base leading-relaxed">Focused execution today, scalable capabilities tomorrow. No invented credentials — growing with verified talent and scientific guidance.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-10">
+<div class="bg-brand-card border border-brand-border p-7 rounded-2xl flex flex-col items-start hover:border-brand-cyan/50 transition-all hover:-translate-y-1 duration-300">
+<div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-cyan to-brand-blue flex items-center justify-center font-display font-black text-xl text-brand-dark shadow-lg">IP</div><div><h3 class="text-xl font-display font-bold text-white">Indrajeet Singh Pothiwal</h3><div class="text-xs font-mono text-brand-cyan font-semibold">Founder, IndraMed.ai</div></div></div>
+<p class="text-slate-300 text-xs sm:text-sm leading-relaxed">Leading vision, product roadmap, technical architecture, and strategic market expansion for IndraMed.ai. Committed to closing diagnostic access gaps through disciplined engineering.</p>
+</div>
+<div class="bg-brand-card border border-brand-border p-7 rounded-2xl flex flex-col items-start hover:border-brand-teal/50 transition-all hover:-translate-y-1 duration-300">
+<div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-teal to-blue-500 flex items-center justify-center font-display font-black text-xl text-brand-dark shadow-lg">AJ</div><div><h3 class="text-xl font-display font-bold text-white">Arzoo Jangra</h3><div class="text-xs font-mono text-brand-teal font-semibold">Co-Founder</div></div></div>
+<p class="text-slate-300 text-xs sm:text-sm leading-relaxed">Co-leading organizational strategy, operational execution, partnerships, and clinical stakeholder relations to accelerate validation and pilot readiness.</p>
+</div>
+</div>
+<div class="max-w-4xl mx-auto mb-12 reveal">
+<h4 class="text-center font-mono text-xs uppercase tracking-wider text-slate-400 mb-6">Medical Research & Clinical Input Team</h4>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger">
+<div class="bg-brand-card/80 border border-brand-border p-4 rounded-xl text-center hover:border-brand-cyan/30 transition-colors"><div class="w-10 h-10 mx-auto rounded-full bg-slate-800 border border-brand-border flex items-center justify-center text-slate-300 font-bold text-sm mb-2">MA</div><div class="text-sm font-bold text-white font-display">Mohd Azeem</div><div class="text-[11px] font-mono text-slate-400">Medical Student</div><div class="text-[10px] text-brand-cyan/80 mt-1 font-mono">Clinical Protocol Review</div></div>
+<div class="bg-brand-card/80 border border-brand-border p-4 rounded-xl text-center hover:border-brand-cyan/30 transition-colors"><div class="w-10 h-10 mx-auto rounded-full bg-slate-800 border border-brand-border flex items-center justify-center text-slate-300 font-bold text-sm mb-2">MA</div><div class="text-sm font-bold text-white font-display">Mohd Abuzar</div><div class="text-[11px] font-mono text-slate-400">Medical Student</div><div class="text-[10px] text-brand-cyan/80 mt-1 font-mono">Literature & Data Grounding</div></div>
+<div class="bg-brand-card/80 border border-brand-border p-4 rounded-xl text-center hover:border-brand-cyan/30 transition-colors"><div class="w-10 h-10 mx-auto rounded-full bg-slate-800 border border-brand-border flex items-center justify-center text-slate-300 font-bold text-sm mb-2">MS</div><div class="text-sm font-bold text-white font-display">Mohd Sameed</div><div class="text-[11px] font-mono text-slate-400">Medical Student</div><div class="text-[10px] text-brand-cyan/80 mt-1 font-mono">Diagnostic Workflow Analysis</div></div>
+</div>
+</div>
+<div class="bg-brand-card/90 border border-brand-border p-8 rounded-2xl max-w-5xl mx-auto reveal">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+<div><span class="text-[11px] font-mono font-bold text-brand-cyan uppercase">Future Capabilities — Target Advisory & Talent</span><h3 class="text-xl font-display font-bold text-white">Targeted Competency Domains</h3></div>
+<div class="text-xs font-mono text-slate-400">Active Recruitment & Scientific Advisory Expansion</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+<div class="bg-brand-surface p-3.5 rounded-xl border border-brand-border/80 hover:border-brand-cyan/30 transition-colors"><div class="text-brand-cyan mb-2"><i data-lucide="cpu" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white font-display">Medical AI / ML</div><div class="text-[11px] text-slate-400 mt-1">Deep Vision, ViTs, Self-Supervised Learning</div></div>
+<div class="bg-brand-surface p-3.5 rounded-xl border border-brand-border/80 hover:border-brand-teal/30 transition-colors"><div class="text-brand-teal mb-2"><i data-lucide="file-image" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white font-display">Medical Imaging</div><div class="text-[11px] text-slate-400 mt-1">Thoracic Radiology & PACS Interoperability</div></div>
+<div class="bg-brand-surface p-3.5 rounded-xl border border-brand-border/80 hover:border-brand-blue/30 transition-colors"><div class="text-brand-blue mb-2"><i data-lucide="check-circle" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white font-display">Clinical Validation</div><div class="text-[11px] text-slate-400 mt-1">Multi-Center Trial Design & Statistics</div></div>
+<div class="bg-brand-surface p-3.5 rounded-xl border border-brand-border/80 hover:border-brand-amber/30 transition-colors"><div class="text-brand-amber mb-2"><i data-lucide="terminal" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white font-display">Software Engineering</div><div class="text-[11px] text-slate-400 mt-1">Edge Containerization, HL7/FHIR Security</div></div>
+<div class="bg-brand-surface p-3.5 rounded-xl border border-brand-border/80 hover:border-purple-400/30 transition-colors"><div class="text-purple-400 mb-2"><i data-lucide="scale" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white font-display">Regulatory / Clinical Affairs</div><div class="text-[11px] text-slate-400 mt-1">SaMD Classification, ISO 13485 & CDSCO</div></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- INVESTMENT -->
+<section id="investment" class="py-24 bg-brand-dark relative">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16 space-y-4 reveal">
+<span class="text-xs font-mono font-bold text-brand-cyan uppercase tracking-widest bg-brand-card px-3 py-1 rounded-full border border-brand-border">Investor Overview</span>
+<h2 class="text-3xl sm:text-4xl font-display font-bold text-white">Help Build the Clinical AI Layer for TB</h2>
+<div class="inline-block bg-brand-card border border-brand-cyan/40 px-4 py-2 rounded-xl text-xs font-mono font-bold text-brand-cyan tracking-wider">PRE-SEED / SEED FUNDING TARGET — FINAL AMOUNT TO BE DETERMINED AFTER TECHNICAL BUDGETING</div>
+<p class="text-slate-300 text-sm sm:text-base leading-relaxed pt-2">Funding may support AI development, datasets, clinical partnerships, validation, studies, security, regulatory preparation and pilots. No invented funding amounts or valuations.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 stagger">
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl hover:border-brand-cyan/30 transition-colors"><div class="flex items-center justify-between mb-3"><span class="text-xs font-mono font-bold text-brand-cyan">ALLOCATION PILLAR 1</span><i data-lucide="database" class="w-4 h-4 text-brand-cyan"></i></div><h4 class="text-lg font-display font-bold text-white mb-2">AI Model & Dataset Strategy</h4><p class="text-slate-300 text-xs leading-relaxed">Multi-center real-world dataset acquisition, expert radiologist panel consensus labeling, multi-view CXR fine-tuning, and bias mitigation across demographics.</p></div>
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl hover:border-brand-teal/30 transition-colors"><div class="flex items-center justify-between mb-3"><span class="text-xs font-mono font-bold text-brand-teal">ALLOCATION PILLAR 2</span><i data-lucide="flask-conical" class="w-4 h-4 text-brand-teal"></i></div><h4 class="text-lg font-display font-bold text-white mb-2">Clinical Partnerships & Studies</h4><p class="text-slate-300 text-xs leading-relaxed">Ethics committee (IRB) protocol submissions, blinded retrospective validation trials in India and Uzbekistan, and peer-reviewed paper submissions.</p></div>
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl hover:border-brand-blue/30 transition-colors"><div class="flex items-center justify-between mb-3"><span class="text-xs font-mono font-bold text-brand-blue">ALLOCATION PILLAR 3</span><i data-lucide="lock" class="w-4 h-4 text-blue-400"></i></div><h4 class="text-lg font-display font-bold text-white mb-2">Security, Auditing & Edge Engineering</h4><p class="text-slate-300 text-xs leading-relaxed">Hardened offline container builds for low-bandwidth clinics, rigorous access, continuous penetration testing, and automated PHI sanitization.</p></div>
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl hover:border-brand-amber/30 transition-colors"><div class="flex items-center justify-between mb-3"><span class="text-xs font-mono font-bold text-brand-amber">ALLOCATION PILLAR 4</span><i data-lucide="file-check-2" class="w-4 h-4 text-brand-amber"></i></div><h4 class="text-lg font-display font-bold text-white mb-2">Regulatory Pathway Preparation</h4><p class="text-slate-300 text-xs leading-relaxed">Technical documentation under ISO 13485 QMS frameworks and pre-submission dossier readiness for statutory health authorities.</p></div>
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl hover:border-purple-400/30 transition-colors"><div class="flex items-center justify-between mb-3"><span class="text-xs font-mono font-bold text-purple-400">ALLOCATION PILLAR 5</span><i data-lucide="map-pin" class="w-4 h-4 text-purple-400"></i></div><h4 class="text-lg font-display font-bold text-white mb-2">Supervised Pilot Deployments</h4><p class="text-slate-300 text-xs leading-relaxed">On-the-ground hardware gateway kits for initial pilot hospital corridors, gathering workflow efficiency metrics and user feedback loops.</p></div>
+<div class="bg-brand-surface border border-brand-border p-6 rounded-2xl flex flex-col justify-between hover:border-emerald-400/30 transition-colors"><div><div class="flex items-center justify-between mb-3"><span class="text-xs font-mono font-bold text-emerald-400">COLLABORATION</span><i data-lucide="users" class="w-4 h-4 text-emerald-400"></i></div><h4 class="text-lg font-display font-bold text-white mb-2">Join the Round</h4><p class="text-slate-300 text-xs leading-relaxed">We welcome mission-aligned healthcare investors, clinical angels, and strategic healthtech funds.</p></div><button onclick="openModal('pitchModal')" class="mt-4 w-full py-2.5 rounded-lg bg-brand-cyan text-brand-dark font-bold font-mono text-xs hover:bg-white transition-colors">Request Complete Deck & Budget</button></div>
+</div>
+</div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="py-20 bg-gradient-to-b from-brand-surface to-brand-dark border-t border-brand-border relative overflow-hidden">
+<div class="absolute inset-0 radial-gradient-hero pointer-events-none"></div>
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8 reveal">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-cyan/10 border border-brand-cyan/30 text-brand-cyan font-mono text-xs font-bold"><span>NEXT STEP</span></div>
+<h2 class="text-4xl sm:text-5xl font-display font-black text-white tracking-tight leading-tight">Earlier Insight. Better Decisions.<br/><span class="text-brand-cyan text-glow">Better Care.</span></h2>
+<p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed"><strong>IndraMed.ai</strong> is building toward a future where clinical AI helps healthcare professionals detect, investigate and manage disease with greater intelligence.</p>
+<div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+<button onclick="openModal('partnerModal')" class="px-8 py-4 rounded-xl bg-gradient-to-r from-brand-cyan to-brand-teal text-brand-dark font-display font-bold text-base hover:shadow-[0_0_30px_rgba(0,240,255,0.7)] transition-all flex items-center gap-2"><i data-lucide="handshake" class="w-5 h-5"></i><span>Partner With Us</span></button>
+<a href="#technology" class="px-8 py-4 rounded-xl bg-brand-card hover:bg-brand-cardHover border border-brand-border text-white font-display font-semibold text-base transition-all flex items-center gap-2"><span>Explore Technology</span><i data-lucide="arrow-right" class="w-4 h-4 text-brand-cyan"></i></a>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-brand-dark border-t border-brand-border pt-16 pb-12 text-slate-400 text-xs">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+<div class="md:col-span-2 space-y-4">
+<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-cyan to-brand-teal p-[1px] flex items-center justify-center"><div class="w-full h-full bg-brand-dark rounded-[7px] flex items-center justify-center"><i data-lucide="activity" class="w-4 h-4 text-brand-cyan"></i></div></div><span class="text-xl font-display font-black text-white">IndraMed<span class="text-brand-cyan">.ai</span></span></div>
+<p class="text-slate-400 text-xs leading-relaxed max-w-sm">Next-generation clinical AI and medical imaging intelligence platform. Start focused in high-burden regions; scale globally through verified clinical evidence.</p>
+<div class="text-[11px] font-mono text-slate-500">Founded by Indrajeet Singh Pothiwal & Arzoo Jangra</div>
+</div>
+<div class="space-y-3"><div class="font-mono font-bold text-white text-xs uppercase tracking-wider">Platform</div><ul class="space-y-2"><li><a href="#demo" class="hover:text-brand-cyan transition-colors">Interactive AI Demo</a></li><li><a href="#technology" class="hover:text-brand-cyan transition-colors">Technology</a></li><li><a href="#markets" class="hover:text-brand-cyan transition-colors">Strategic Markets</a></li><li><a href="#roadmap" class="hover:text-brand-cyan transition-colors">Validation</a></li></ul></div>
+<div class="space-y-3"><div class="font-mono font-bold text-white text-xs uppercase tracking-wider">Clinical AI</div><ul class="space-y-2"><li><a href="#vision" class="hover:text-brand-cyan transition-colors">Vision</a></li><li><a href="#team" class="hover:text-brand-cyan transition-colors">About</a></li><li><a href="#investment" class="hover:text-brand-cyan transition-colors">Clinical AI</a></li><li><button onclick="openModal('partnerModal')" class="hover:text-brand-cyan transition-colors text-left">Clinical Partnerships</button></li></ul></div>
+<div class="space-y-3"><div class="font-mono font-bold text-white text-xs uppercase tracking-wider">Sources & Data</div><ul class="space-y-1.5 text-[11px] text-slate-500 font-mono"><li>• WHO Global TB Report 2025</li><li>• WHO TB Guidance</li><li>• Central TB Division, MoHFW India</li><li>• NTEP / WHO India</li><li>• WHO Europe</li><li>• Uzbekistan Ministry of Health</li></ul></div>
+</div>
+<div class="pt-8 border-t border-brand-border/60 space-y-4">
+<div class="bg-brand-surface border border-brand-border/80 p-4 rounded-xl text-[11px] leading-relaxed text-slate-400"><strong class="text-white font-semibold">MANDATORY REGULATORY DISCLAIMER:</strong> IndraMed.ai is an early-stage medical AI initiative. Clinical performance, safety and regulatory status remain subject to future validation and applicable requirements. Demonstration modules on this website utilize synthetic or de-identified test parameters and are strictly not for direct clinical diagnosis or therapeutic decision-making. AI-assisted screening support. Does not replace clinical assessment or confirmatory testing.</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400 font-mono"><div>© 2026 IndraMed.ai. All rights reserved.</div><div class="flex items-center gap-4"><span class="text-brand-cyan">IndraMed.ai</span><span>•</span><span>Prototype Phase 2026</span></div></div>
+</div>
+</div>
+</footer>
+
+<!-- MODALS -->
+<div id="partnerModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+<div class="bg-brand-surface border border-brand-border rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative text-left" onclick="event.stopPropagation()">
+<button onclick="closeModal('partnerModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+<div class="flex items-center gap-2 text-xs font-mono text-brand-cyan font-bold mb-2"><i data-lucide="handshake" class="w-4 h-4"></i><span>CLINICAL & STRATEGIC PARTNERSHIP</span></div>
+<h3 class="text-2xl font-display font-bold text-white mb-2">Partner with IndraMed.ai</h3>
+<p class="text-xs text-slate-300 mb-6">Connect with our founding team to discuss clinical validation studies, retrospective dataset collaboration, or institutional pilot deployments in India & Central Asia.</p>
+<form id="partnerForm" onsubmit="handlePartnerSubmit(event)" class="space-y-4">
+<div><label class="block text-xs font-mono text-slate-300 mb-1">Full Name *</label><input required type="text" placeholder="Dr. / Prof. / Officer" class="w-full px-3.5 py-2.5 rounded-lg bg-brand-card border border-brand-border text-white text-xs focus:outline-none focus:border-brand-cyan font-sans" /></div>
+<div><label class="block text-xs font-mono text-slate-300 mb-1">Organization / Hospital / Firm *</label><input required type="text" placeholder="Institution Name" class="w-full px-3.5 py-2.5 rounded-lg bg-brand-card border border-brand-border text-white text-xs focus:outline-none focus:border-brand-cyan font-sans" /></div>
+<div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-mono text-slate-300 mb-1">Work Email *</label><input required type="email" placeholder="name@institution.org" class="w-full px-3.5 py-2.5 rounded-lg bg-brand-card border border-brand-border text-white text-xs focus:outline-none focus:border-brand-cyan font-sans" /></div><div><label class="block text-xs font-mono text-slate-300 mb-1">Region</label><select class="w-full px-3 py-2.5 rounded-lg bg-brand-card border border-brand-border text-white text-xs focus:outline-none focus:border-brand-cyan font-sans"><option>India</option><option>Uzbekistan / Central Asia</option><option>International / Other</option></select></div></div>
+<div><label class="block text-xs font-mono text-slate-300 mb-1">Collaboration Interest</label><select class="w-full px-3 py-2.5 rounded-lg bg-brand-card border border-brand-border text-white text-xs focus:outline-none focus:border-brand-cyan font-sans"><option>Clinical Validation / Study Partnership</option><option>Hospital Triage Pilot</option><option>Scientific / Clinical Advisory</option><option>Strategic Investment / Grants</option></select></div>
+<button type="submit" class="w-full py-3 rounded-lg bg-brand-cyan hover:bg-white text-brand-dark font-bold font-mono text-xs transition-colors mt-2">Submit Partnership Inquiry</button>
+</form>
+</div>
+</div>
+<div id="pitchModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+<div class="bg-brand-surface border border-brand-border rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative text-left" onclick="event.stopPropagation()">
+<button onclick="closeModal('pitchModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+<div class="flex items-center gap-2 text-xs font-mono text-brand-teal font-bold mb-2"><i data-lucide="file-text" class="w-4 h-4"></i><span>INVESTOR MATERIALS</span></div>
+<h3 class="text-2xl font-display font-bold text-white mb-2">Request Investor Deck</h3>
+<p class="text-xs text-slate-300 mb-6">Receive our executive summary, technical architecture whitepaper, and pre-seed/seed allocation framework.</p>
+<form id="pitchForm" onsubmit="handlePitchSubmit(event)" class="space-y-4">
+<div><label class="block text-xs font-mono text-slate-300 mb-1">Your Name *</label><input required type="text" placeholder="Investor / Partner Name" class="w-full px-3.5 py-2.5 rounded-lg bg-brand-card border border-brand-border text-white text-xs focus:outline-none focus:border-brand-teal font-sans" /></div>
+<div><label class="block text-xs font-mono text-slate-300 mb-1">Fund / Entity</label><input type="text" placeholder="Angel / Venture Fund / Family Office" class="w-full px-3.5 py-2.5 rounded-lg bg-brand-card border border-brand-border text-white text-xs focus:outline-none focus:border-brand-teal font-sans" /></div>
+<div><label class="block text-xs font-mono text-slate-300 mb-1">Investor Email *</label><input required type="email" placeholder="investor@firm.com" class="w-full px-3.5 py-2.5 rounded-lg bg-brand-card border border-brand-border text-white text-xs focus:outline-none focus:border-brand-teal font-sans" /></div>
+<button type="submit" class="w-full py-3 rounded-lg bg-brand-teal hover:bg-white text-brand-dark font-bold font-mono text-xs transition-colors mt-2">Request Confidential Deck</button>
+</form>
+</div>
+</div>
+<div id="toast" class="fixed bottom-6 right-6 z-50 bg-brand-card border border-brand-cyan text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300"><i data-lucide="check-circle" class="w-5 h-5 text-brand-cyan"></i><span id="toastMsg" class="text-xs font-mono font-semibold">Inquiry received.</span></div>
+
+<script>
+lucide.createIcons();
+const mobileMenuBtn=document.getElementById('mobileMenuBtn');
+const mobileMenu=document.getElementById('mobileMenu');
+function toggleMobileMenu(){mobileMenu.classList.toggle('hidden')}
+if(mobileMenuBtn) mobileMenuBtn.addEventListener('click',toggleMobileMenu);
+function openModal(id){const m=document.getElementById(id);if(m){m.classList.remove('hidden');setTimeout(()=>m.classList.remove('opacity-0'),10)}}
+function closeModal(id){const m=document.getElementById(id);if(m){m.classList.add('opacity-0');setTimeout(()=>m.classList.add('hidden'),300)}}
+window.onclick=function(e){if(e.target.classList.contains('fixed')&&e.target.id.includes('Modal')) closeModal(e.target.id)};
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').innerText=msg;t.classList.remove('translate-y-20','opacity-0');setTimeout(()=>t.classList.add('translate-y-20','opacity-0'),4000)}
+function handlePartnerSubmit(e){e.preventDefault();closeModal('partnerModal');showToast('Thank you. Partnership inquiry submitted to IndraMed.ai founders.');e.target.reset()}
+function handlePitchSubmit(e){e.preventDefault();closeModal('pitchModal');showToast('Pitch deck request registered. We will send materials shortly.');e.target.reset()}
+function simulateReportGeneration(){showToast('Generating Synthetic PDF Report... (Demo Mode Activated)')}
+window.addEventListener('scroll',()=>{const h=document.getElementById('mainHeader');if(window.scrollY>16) h.classList.add('header-scrolled');else h.classList.remove('header-scrolled')});
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('in')})},{threshold:.12});
+document.querySelectorAll('.reveal,.stagger').forEach(el=>observer.observe(el));
+
+/* HERO LUNG CANVAS */
+const heroCanvas=document.getElementById('heroLungCanvas');
+if(heroCanvas){
+  const ctx=heroCanvas.getContext('2d');let width,height;let mouseX=0,mouseY=0,isHovered=false;let particles=[];const particleCount=130;
+  function resizeHero(){width=heroCanvas.width=heroCanvas.parentElement.clientWidth;height=heroCanvas.height=heroCanvas.parentElement.clientHeight;initParticles()}
+  function initParticles(){
+    particles=[];
+    for(let i=0;i<particleCount;i++){
+      const isLeft=Math.random()>0.5;const sign=isLeft?-1:1;const u=Math.random();const v=Math.random();
+      const cx=width/2+sign*(width*0.22);const cy=height*0.48;const rx=width*0.18*(0.8+0.4*v);const ry=height*0.32*Math.sin(Math.PI*u);
+      const angle=u*Math.PI*2;const x=cx+Math.cos(angle)*rx*(0.4+0.6*Math.random());const y=cy+Math.sin(angle)*ry*(0.4+0.6*Math.random());
+      particles.push({x,y,origX:x,origY:y,vx:(Math.random()-0.5)*0.6,vy:(Math.random()-0.5)*0.6,radius:Math.random()*2+1.2,isNeural:Math.random()>0.7,pulse:Math.random()*Math.PI,isLeft})
+    }
+  }
+  heroCanvas.parentElement.addEventListener('mousemove',e=>{const r=heroCanvas.getBoundingClientRect();mouseX=e.clientX-r.left;mouseY=e.clientY-r.top;isHovered=true});
+  heroCanvas.parentElement.addEventListener('mouseleave',()=>isHovered=false);
+  let step=0;
+  function animateHero(){
+    step+=0.02;ctx.fillStyle='rgba(5,7,11,0.25)';ctx.fillRect(0,0,width,height);
+    ctx.beginPath();ctx.strokeStyle='rgba(0,240,255,0.35)';ctx.lineWidth=2.5;
+    ctx.moveTo(width/2,height*0.15);ctx.lineTo(width/2,height*0.38);ctx.lineTo(width/2+width*0.18,height*0.48);ctx.moveTo(width/2,height*0.38);ctx.lineTo(width/2-width*0.18,height*0.48);ctx.stroke();
+    for(let i=0;i<particles.length;i++){
+      const p=particles[i];p.pulse+=0.03;
+      if(isHovered){const dx=mouseX-p.x,dy=mouseY-p.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<105){p.x+=dx*0.018;p.y+=dy*0.018}}
+      p.x+=Math.sin(p.pulse+i)*0.3;p.y+=Math.cos(p.pulse+i)*0.3;
+      for(let j=i+1;j<particles.length;j++){
+        const p2=particles[j];const dx=p.x-p2.x,dy=p.y-p2.y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<42&&p.isLeft===p2.isLeft){ctx.beginPath();ctx.strokeStyle=`rgba(0,240,255,${0.35*(1-dist/42)})`;ctx.lineWidth=0.8;ctx.moveTo(p.x,p.y);ctx.lineTo(p2.x,p2.y);ctx.stroke()}
+      }
+      ctx.beginPath();const cr=p.radius+Math.sin(p.pulse)*0.8;ctx.arc(p.x,p.y,Math.max(0.5,cr),0,Math.PI*2);
+      if(p.isNeural){ctx.fillStyle='#00F0FF';ctx.shadowColor='#00F0FF';ctx.shadowBlur=8}else{ctx.fillStyle='#00E599';ctx.shadowColor='#00E599';ctx.shadowBlur=4}
+      ctx.fill();ctx.shadowBlur=0;
+    }
+    const scanY=(Math.sin(step)*0.5+0.5)*height*0.7+height*0.15;const g=ctx.createLinearGradient(0,scanY-15,0,scanY+15);g.addColorStop(0,'rgba(0,240,255,0)');g.addColorStop(0.5,'rgba(0,240,255,0.4)');g.addColorStop(1,'rgba(0,240,255,0)');ctx.fillStyle=g;ctx.fillRect(width*0.1,scanY-15,width*0.8,30);
+    requestAnimationFrame(animateHero)
+  }
+  window.addEventListener('resize',resizeHero);resizeHero();animateHero();
+}
+
+/* DEMO CASE ENGINE (SYNTHETIC - CLEARLY MARKED) */
+const xrayCanvas=document.getElementById('xrayCanvas');
+const xrayCtx=xrayCanvas?xrayCanvas.getContext('2d'):null;
+let currentCase='case1';let currentOverlay='heatmap';let aiSensitivity=85;let heatmapOpacity=0.7;
+const casesData={
+  case1:{name:"Case A: Right Upper Lobe Cavitary Pattern",risk:"HIGH SUSPICION",riskClass:"bg-brand-alert/20 text-brand-alert border-brand-alert/40",conf:"94.2% Conf.",confPct:94.2,title:"Apical Infiltration & Cavitary Pattern",desc:"Focal opacity with central radiolucency observed in the Right Upper Lobe (RUL). Morphology is highly indicative of active mycobacterial lesion or secondary cavitary process.",exp:"Symmetric / Clear Bases",cardiac:"CTR < 0.50 (Normal)",qc:"98.4% (Optimal)",qcExp:"Adequate / Centered",rec1:"<strong class='text-white'>Confirmatory Molecular Assay:</strong> Sputum GeneXpert (CBNAAT) / Truenat MTB/RIF recommended per WHO & NTEP guidelines.",rec2:"<strong class='text-white'>Clinical Triage:</strong> Flag for expedited review by Medical Officer / Pulmonologist within 24 hours.",rec3:"<strong class='text-white'>Infection Control:</strong> Advise standard respiratory hygiene & community contact tracing protocol."},
+  case2:{name:"Case B: Right Middle Lobe Consolidation",risk:"MODERATE PRIORITY",riskClass:"bg-brand-amber/20 text-brand-amber border-brand-amber/40",conf:"81.5% Conf.",confPct:81.5,title:"Lobar Consolidation / Infiltrate",desc:"Homogeneous opacity in the Right Middle Lobe with air-bronchogram. Suggestive of bacterial pneumonia; TB differential retained per clinical context.",exp:"Mild Hyperexpansion",cardiac:"CTR 0.48 (Normal)",qc:"92.1% (Good)",qcExp:"Slight Rotation: Left",rec1:"<strong class='text-white'>Suggested Workup:</strong> Sputum culture, CBC, CRP and clinical correlation per WHO guidance.",rec2:"<strong class='text-white'>Clinical Triage:</strong> Routine radiologist review within 48 hours; consider follow-up CXR.",rec3:"<strong class='text-white'>Follow-up:</strong> Advise repeat imaging if persistent symptoms per NTEP triage pathway."},
+  case3:{name:"Case C: Normal Screening Chest",risk:"LOW / ROUTINE",riskClass:"bg-brand-teal/20 text-brand-teal border-brand-teal/40",conf:"96.8% Conf.",confPct:96.8,title:"No Acute Infiltrate Detected",desc:"Lung fields clear, no focal opacity, effusion or cavitary lesion visualized. Cardiac and pleural spaces unremarkable on synthetic screen.",exp:"Full Inspiration",cardiac:"CTR 0.45 (Normal)",qc:"99.1% (Optimal)",qcExp:"Excellent / Centered",rec1:"<strong class='text-white'>Suggested Action:</strong> Routine screening interval; no immediate confirmatory TB test indicated by imaging alone.",rec2:"<strong class='text-white'>Documentation:</strong> Auto-generated negative screen note for EHR (DEMO).",rec3:"<strong class='text-white'>Counseling:</strong> Standard health education; return if respiratory symptoms develop."}
+};
+function drawXray(){
+  if(!xrayCtx) return;
+  const w=xrayCanvas.width,h=xrayCanvas.height;
+  xrayCtx.clearRect(0,0,w,h);
+  // background gradient chest
+  const bg=xrayCtx.createRadialGradient(w/2,h/2,80,w/2,h/2,w*0.8);
+  bg.addColorStop(0,'#0B1220');bg.addColorStop(1,'#020617');xrayCtx.fillStyle=bg;xrayCtx.fillRect(0,0,w,h);
+  // rib cage silhouette
+  xrayCtx.strokeStyle='rgba(148,163,184,0.18)';xrayCtx.lineWidth=1;
+  for(let i=0;i<6;i++){const y=90+i*52; xrayCtx.beginPath(); xrayCtx.moveTo(90,y); xrayCtx.quadraticCurveTo(w/2,y-18,w-90,y); xrayCtx.stroke();}
+  // spine
+  xrayCtx.fillStyle='rgba(226,232,240,0.9)';xrayCtx.fillRect(w/2-7,40,14,420);
+  // lungs
+  function drawLung(cx,sign){
+    xrayCtx.save(); xrayCtx.fillStyle='rgba(15,23,42,0.9)'; xrayCtx.strokeStyle='rgba(0,240,255,0.18)'; xrayCtx.lineWidth=1.2;
+    xrayCtx.beginPath();
+    xrayCtx.moveTo(cx+sign*22,70); xrayCtx.bezierCurveTo(cx+sign*95,110,cx+sign*105,280,cx+sign*28,390);
+    xrayCtx.bezierCurveTo(cx+sign*12,340,cx+sign*8,220,cx+sign*18,140); xrayCtx.closePath(); xrayCtx.fill(); xrayCtx.stroke(); xrayCtx.restore();
+  }
+  drawLung(w/2-118,-1); drawLung(w/2+118,1);
+  // case specific pathology
+  const d=casesData[currentCase];
+  if(currentOverlay!=='raw'){
+    if(currentCase==='case1' && currentOverlay!=='segmentation'){
+      // infiltration + cavity
+      if(currentOverlay==='heatmap' || currentOverlay==='boxes'){
+        xrayCtx.fillStyle=`rgba(239,68,68,${0.22*heatmapOpacity+0.08})`;
+        xrayCtx.beginPath(); xrayCtx.ellipse(w/2-78,132,52,38, -0.3,0,Math.PI*2); xrayCtx.fill();
+        // heatmap glow
+        const g=xrayCtx.createRadialGradient(w/2-78,132,10,w/2-78,132,58); g.addColorStop(0,`rgba(239,68,68,${0.55*heatmapOpacity})`); g.addColorStop(1,'rgba(239,68,68,0)'); xrayCtx.fillStyle=g; xrayCtx.beginPath(); xrayCtx.arc(w/2-78,132,58,0,Math.PI*2); xrayCtx.fill();
+        // cavity ring
+        xrayCtx.strokeStyle=`rgba(0,240,255,${0.9*heatmapOpacity})`; xrayCtx.lineWidth=2; xrayCtx.beginPath(); xrayCtx.arc(w/2-72,128,16,0,Math.PI*2); xrayCtx.stroke();
+        xrayCtx.fillStyle='rgba(2,6,23,0.85)'; xrayCtx.beginPath(); xrayCtx.arc(w/2-72,128,9,0,Math.PI*2); xrayCtx.fill();
+        if(currentOverlay==='boxes'){ xrayCtx.strokeStyle='rgba(255,184,0,0.95)'; xrayCtx.setLineDash([6,4]); xrayCtx.strokeRect(w/2-132,92,108,86); xrayCtx.setLineDash([]);}
+      }
+    } else if(currentCase==='case2'){
+      if(currentOverlay==='heatmap' || currentOverlay==='boxes'){
+        xrayCtx.fillStyle=`rgba(255,184,0,${0.22*heatmapOpacity})`; xrayCtx.beginPath(); xrayCtx.ellipse(w/2+86,222,62,44,0.2,0,Math.PI*2); xrayCtx.fill();
+        const g=xrayCtx.createRadialGradient(w/2+86,222,12,w/2+86,222,66); g.addColorStop(0,`rgba(255,184,0,${0.5*heatmapOpacity})`); g.addColorStop(1,'rgba(255,184,0,0)'); xrayCtx.fillStyle=g; xrayCtx.beginPath(); xrayCtx.arc(w/2+86,222,66,0,Math.PI*2); xrayCtx.fill();
+        if(currentOverlay==='boxes'){ xrayCtx.strokeStyle='rgba(0,240,255,0.95)'; xrayCtx.setLineDash([6,4]); xrayCtx.strokeRect(w/2+22,176,128,92); xrayCtx.setLineDash([]);}
+      }
+    }
+    if(currentOverlay==='segmentation'){
+      xrayCtx.strokeStyle='rgba(0,240,255,0.55)'; xrayCtx.lineWidth=1.2; xrayCtx.setLineDash([4,4]);
+      // upper/mid/lower zones
+      [132,220,310].forEach(y=>{ xrayCtx.beginPath(); xrayCtx.moveTo(78,y); xrayCtx.lineTo(w-78,y); xrayCtx.stroke();});
+      xrayCtx.setLineDash([]); xrayCtx.fillStyle='rgba(0,240,255,0.09)'; xrayCtx.fillRect(78,92,w-156,88);
+      xrayCtx.fillStyle='rgba(0,229,153,0.07)'; xrayCtx.fillRect(78,180,w-156,88);
+    }
+  }
+  // diaphragm
+  xrayCtx.fillStyle='rgba(30,41,59,0.9)'; xrayCtx.beginPath(); xrayCtx.ellipse(w/2,410,140,28,0,0,Math.PI); xrayCtx.fill();
+  // scan sweep
+  if(currentOverlay==='heatmap'){
+    const t=Date.now()*0.001; const sy= 100 + ((Math.sin(t*0.9)+1)/2)*260;
+    const gg=xrayCtx.createLinearGradient(0,sy-14,0,sy+14); gg.addColorStop(0,'rgba(0,240,255,0)'); gg.addColorStop(0.5,'rgba(0,240,255,0.22)'); gg.addColorStop(1,'rgba(0,240,255,0)'); xrayCtx.fillStyle=gg; xrayCtx.fillRect(70,sy-14,w-140,28);
+  }
+}
+function loadCase(id){
+  currentCase=id;
+  document.querySelectorAll('[id^="btnCase"]').forEach(b=>{b.className='px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-brand-card hover:bg-brand-cardHover border border-brand-border text-slate-300 transition-all'});
+  const active=document.getElementById('btnCase'+id.slice(-1)); if(active) active.className='px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-brand-card hover:bg-brand-cyan/20 border border-brand-cyan text-brand-cyan transition-all';
+  const d=casesData[id];
+  document.getElementById('riskBadge').innerText=d.risk; document.getElementById('riskBadge').className='px-2.5 py-1 rounded font-mono text-xs font-bold border '+d.riskClass;
+  document.getElementById('primaryFindingTitle').innerText=d.title; document.getElementById('primaryFindingConfidence').innerText=d.conf;
+  document.getElementById('confidenceBar').style.width=d.confPct+'%';
+  document.getElementById('primaryFindingDesc').innerText=d.desc;
+  document.getElementById('obsExpansion').innerText=d.exp; document.getElementById('obsCardiac').innerHTML=d.cardiac;
+  document.getElementById('qcScore').innerText=d.qc; document.getElementById('qcExp').innerText=d.qcExp;
+  document.getElementById('recStep1').innerHTML=`<span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span><p class="text-slate-300">${d.rec1}</p>`;
+  document.getElementById('recStep2').innerHTML=`<span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span><p class="text-slate-300">${d.rec2}</p>`;
+  document.getElementById('recStep3').innerHTML=`<span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span><p class="text-slate-300">${d.rec3}</p>`;
+  drawXray();
+}
+function toggleOverlay(type){
+  currentOverlay=type;
+  const map={heatmap:'toggleHeatmapBtn',boxes:'toggleBoxesBtn',segmentation:'toggleSegBtn',raw:'toggleRawBtn'};
+  Object.values(map).forEach(id=>{document.getElementById(id).className='px-2 py-0.5 rounded bg-brand-card text-slate-400 hover:text-white'});
+  document.getElementById(map[type]).className='px-2 py-0.5 rounded bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/40';
+  document.getElementById('activeLayerText').innerText='Layer: '+ (type==='heatmap'?'AI Heatmap + Annotations':type==='boxes'?'Bounding Boxes':type==='segmentation'?'Lung Zone Segmentation':'Raw CXR — No Overlay');
+  drawXray();
+}
+function updateSensitivity(v){aiSensitivity=v;document.getElementById('sensitivityVal').innerText=v+'%';drawXray()}
+function updateOpacity(v){heatmapOpacity=v/100;document.getElementById('opacityVal').innerText=v+'%';drawXray()}
+if(xrayCtx){loadCase('case1');setInterval(()=>{if(currentOverlay==='heatmap') drawXray()},80)}
+
+/* LIVE MODE — REAL CAMERA & UPLOAD (NO FAKE RESULTS) */
+let currentMode='demo';
+let liveFile=null; let liveObjectUrl=null; let liveRotation=0; let liveBrightness=100; let liveContrast=100; let cropActive=false;
+let cameraStream=null;
+const fileInput=document.getElementById('xrayFileInput');
+const livePreviewImg=document.getElementById('livePreviewImg');
+const liveCanvasEl=document.getElementById('liveCanvas');
+const cameraVideo=document.getElementById('cameraVideo');
+
+function switchDemoMode(mode){
+  currentMode=mode;
+  const demoBtn=document.getElementById('modeDemoBtn'), liveBtn=document.getElementById('modeLiveBtn');
+  if(mode==='demo'){
+    demoBtn.className='px-5 py-2 rounded-lg text-xs font-mono font-bold bg-brand-cyan text-brand-dark shadow transition-all';
+    liveBtn.className='px-5 py-2 rounded-lg text-xs font-mono font-bold text-slate-400 hover:text-white transition-all';
+    document.getElementById('demoCaseSelectors').classList.remove('hidden'); document.getElementById('demoCaseSelectors').classList.add('flex');
+    document.getElementById('liveSessionLabel').classList.add('hidden');
+    document.getElementById('demoViewerHeader').classList.remove('hidden'); document.getElementById('demoViewerHeader').classList.add('flex');
+    document.getElementById('liveViewerHeader').classList.add('hidden'); document.getElementById('liveViewerHeader').classList.remove('flex');
+    document.getElementById('demoCanvasWrap').classList.remove('hidden'); document.getElementById('liveCanvasWrap').classList.add('hidden'); document.getElementById('liveCanvasWrap').classList.remove('flex');
+    document.getElementById('demoBottomControls').classList.remove('hidden'); document.getElementById('liveEditControls').classList.add('hidden');
+    document.getElementById('demoRightPanel').classList.remove('hidden'); document.getElementById('liveRightPanel').classList.add('hidden');
+    document.getElementById('sessionLabel').innerText='SESSION: CXR-SYNTH-2026-v04';
+    closeCamera();
+  } else {
+    liveBtn.className='px-5 py-2 rounded-lg text-xs font-mono font-bold bg-brand-teal text-brand-dark shadow transition-all';
+    demoBtn.className='px-5 py-2 rounded-lg text-xs font-mono font-bold text-slate-400 hover:text-white transition-all';
+    document.getElementById('demoCaseSelectors').classList.add('hidden'); document.getElementById('demoCaseSelectors').classList.remove('flex');
+    document.getElementById('liveSessionLabel').classList.remove('hidden');
+    document.getElementById('demoViewerHeader').classList.add('hidden'); document.getElementById('demoViewerHeader').classList.remove('flex');
+    document.getElementById('liveViewerHeader').classList.remove('hidden'); document.getElementById('liveViewerHeader').classList.add('flex');
+    document.getElementById('demoCanvasWrap').classList.add('hidden'); document.getElementById('liveCanvasWrap').classList.remove('hidden'); document.getElementById('liveCanvasWrap').classList.add('flex');
+    document.getElementById('demoBottomControls').classList.add('hidden');
+    if(liveFile) document.getElementById('liveEditControls').classList.remove('hidden');
+    document.getElementById('demoRightPanel').classList.add('hidden'); document.getElementById('liveRightPanel').classList.remove('hidden');
+    document.getElementById('sessionLabel').innerText='SESSION: CXR-LIVE-REAL-IMAGE';
+    lucide.createIcons();
+  }
+}
+
+function triggerUpload(){ fileInput.click(); }
+
+fileInput.addEventListener('change', e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const valid=['image/jpeg','image/png','image/webp']; if(!valid.includes(f.type)){ showToast('Unsupported format. Use JPG, PNG or WEBP.'); return;}
+  if(f.size>10*1024*1024){ showToast('File too large. Max 10MB.'); return;}
+  loadLiveFile(f);
+});
+
+function loadLiveFile(file){
+  liveFile=file;
+  if(liveObjectUrl) URL.revokeObjectURL(liveObjectUrl);
+  liveObjectUrl=URL.createObjectURL(file);
+  livePreviewImg.src=liveObjectUrl;
+  livePreviewImg.onload=()=>{ updateLiveFilters(); };
+  document.getElementById('liveEmptyState').classList.add('hidden');
+  document.getElementById('cameraView').classList.add('hidden');
+  document.getElementById('livePreviewContainer').classList.remove('hidden');
+  document.getElementById('liveEditControls').classList.remove('hidden');
+  document.getElementById('liveNoImageBox').classList.add('hidden');
+  document.getElementById('liveReadyBox').classList.remove('hidden');
+  document.getElementById('liveBackendError').classList.add('hidden');
+  document.getElementById('liveResultBox').classList.add('hidden');
+  document.getElementById('liveAnalyzeStatus').classList.add('hidden');
+  liveRotation=0; liveBrightness=100; liveContrast=100; cropActive=false;
+  document.getElementById('brightnessSlider').value=100; document.getElementById('contrastSlider').value=100;
+  updateLiveFilters();
+  closeCamera();
+}
+
+async function openCamera(){
+  // Must request permission immediately on user gesture
+  switchDemoMode('live');
+  hideCameraError();
+  document.getElementById('liveEmptyState').classList.add('hidden');
+  document.getElementById('livePreviewContainer').classList.add('hidden');
+  document.getElementById('cameraView').classList.remove('hidden');
+  document.getElementById('liveEditControls').classList.add('hidden');
+  try{
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio:false });
+    cameraVideo.srcObject=cameraStream;
+    await cameraVideo.play();
+  }catch(err){
+    console.error(err);
+    document.getElementById('cameraView').classList.add('hidden');
+    document.getElementById('liveEmptyState').classList.remove('hidden');
+    showCameraPermissionError(err);
+  }
+}
+function showCameraPermissionError(err){
+  const box=document.getElementById('cameraErrorBox');
+  box.classList.remove('hidden');
+  let msg='Camera permission denied. Please allow camera access in browser settings.';
+  if(err && err.name==='NotFoundError') msg='No rear camera found on this device. Please upload an X-ray instead.';
+  if(err && err.name==='NotAllowedError') msg='Camera permission denied. Browser blocked access. Please tap Allow when prompted or enable Camera in site settings.';
+  box.querySelector('p').innerText=msg+' You can also upload an image instead.';
+  lucide.createIcons();
+}
+function hideCameraError(){ document.getElementById('cameraErrorBox').classList.add('hidden'); }
+function closeCamera(){
+  document.getElementById('cameraView').classList.add('hidden');
+  if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
+  cameraVideo.srcObject=null;
+  if(!liveFile) document.getElementById('liveEmptyState').classList.remove('hidden');
+}
+function capturePhoto(){
+  if(!cameraVideo.videoWidth){ showToast('Camera not ready yet.'); return;}
+  const c=document.createElement('canvas');
+  c.width=cameraVideo.videoWidth; c.height=cameraVideo.videoHeight;
+  const cx=c.getContext('2d'); cx.drawImage(cameraVideo,0,0,c.width,c.height);
+  c.toBlob(blob=>{
+    if(!blob) return;
+    const file=new File([blob], 'xray-capture-'+Date.now()+'.jpg', {type:'image/jpeg'});
+    // shutter effect
+    document.getElementById('cameraView').classList.add('camera-shutter');
+    setTimeout(()=>document.getElementById('cameraView').classList.remove('camera-shutter'),350);
+    loadLiveFile(file);
+  }, 'image/jpeg', 0.92);
+}
+function retakePhoto(){ openCamera(); }
+function clearLiveImage(){
+  liveFile=null; if(liveObjectUrl){URL.revokeObjectURL(liveObjectUrl); liveObjectUrl=null;}
+  livePreviewImg.removeAttribute('src');
+  document.getElementById('livePreviewContainer').classList.add('hidden');
+  document.getElementById('liveEmptyState').classList.remove('hidden');
+  document.getElementById('liveEditControls').classList.add('hidden');
+  document.getElementById('liveNoImageBox').classList.remove('hidden');
+  document.getElementById('liveReadyBox').classList.add('hidden');
+  document.getElementById('liveBackendError').classList.add('hidden');
+  document.getElementById('liveResultBox').classList.add('hidden');
+  fileInput.value='';
+}
+
+function updateLiveFilters(){
+  liveBrightness=parseInt(document.getElementById('brightnessSlider').value);
+  liveContrast=parseInt(document.getElementById('contrastSlider').value);
+  document.getElementById('brightnessVal').innerText=liveBrightness+'%';
+  document.getElementById('contrastVal').innerText=liveContrast+'%';
+  const filter=`brightness(${liveBrightness}%) contrast(${liveContrast}%)`;
+  livePreviewImg.style.filter=filter;
+  livePreviewImg.style.transform=`rotate(${liveRotation}deg) ${cropActive?'scale(1.18)':''}`;
+  livePreviewImg.style.transformOrigin='center center';
+}
+function rotateLive(deg){ liveRotation=(liveRotation+deg)%360; updateLiveFilters(); }
+function toggleCrop(){
+  cropActive=!cropActive;
+  const btn=document.getElementById('cropBtn');
+  const overlay=document.getElementById('cropOverlay');
+  if(cropActive){ btn.classList.add('bg-brand-cyan/20','text-brand-cyan','border-brand-cyan/40'); overlay.classList.remove('hidden'); }
+  else { btn.classList.remove('bg-brand-cyan/20','text-brand-cyan','border-brand-cyan/40'); overlay.classList.add('hidden'); }
+  updateLiveFilters();
+}
+function resetLiveEdits(){
+  liveRotation=0; liveBrightness=100; liveContrast=100; cropActive=false;
+  document.getElementById('brightnessSlider').value=100; document.getElementById('contrastSlider').value=100;
+  document.getElementById('cropOverlay').classList.add('hidden');
+  document.getElementById('cropBtn').classList.remove('bg-brand-cyan/20','text-brand-cyan','border-brand-cyan/40');
+  updateLiveFilters();
+}
+
+// Real backend inference — no fake results
+// Configure your endpoint via window.INDRA_API_URL if needed. Defaults to /api/analyze-xray
+function getApiEndpoint(){ return (window.INDRA_API_URL && window.INDRA_API_URL.trim()) || '/api/analyze-xray'; }
+
+async function analyzeLiveImage(){
+  if(!liveFile){ showToast('No image to analyze. Capture or upload first.'); return; }
+  const btn=document.getElementById('analyzeLiveBtn');
+  const status=document.getElementById('liveAnalyzeStatus');
+  const errBox=document.getElementById('liveBackendError');
+  const resBox=document.getElementById('liveResultBox');
+  errBox.classList.add('hidden'); resBox.classList.add('hidden');
+  btn.disabled=true; status.classList.remove('hidden');
+  btn.innerHTML='<span class="w-4 h-4 border-2 border-brand-dark border-t-transparent rounded-full animate-spin inline-block"></span> Analyzing...';
+  try{
+    // Build processed blob with edits applied
+    const processedBlob=await getProcessedImageBlob();
+    const fd=new FormData();
+    // backend expects multipart/form-data with field 'image' (also add 'file' for compatibility)
+    fd.append('image', processedBlob, liveFile.name || 'xray.jpg');
+    fd.append('file', processedBlob, liveFile.name || 'xray.jpg');
+
+    const endpoint=getApiEndpoint();
+    const resp=await fetch(endpoint, { method:'POST', body: fd });
+    if(!resp.ok) throw new Error('Backend responded '+resp.status);
+    const data=await resp.json().catch(()=>null);
+    if(!data) throw new Error('Invalid backend JSON');
+    // Backend must drive UI — render real response
+    renderBackendResult(data, endpoint);
+  }catch(e){
+    console.error(e);
+    errBox.classList.remove('hidden');
+    lucide.createIcons();
+  } finally {
+    btn.disabled=false; status.classList.add('hidden');
+    btn.innerHTML='<i data-lucide="sparkles" class="w-4 h-4"></i> Analyze X-Ray';
+    lucide.createIcons();
+  }
+}
+
+function getProcessedImageBlob(){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const temp=document.createElement('canvas');
+      const ctx=temp.getContext('2d');
+      let w=img.naturalWidth, h=img.naturalHeight;
+      // handle rotation dimensions
+      const rot=((liveRotation%360)+360)%360;
+      if(rot===90 || rot===270){ temp.width=h; temp.height=w; } else { temp.width=w; temp.height=h; }
+      ctx.filter=`brightness(${liveBrightness}%) contrast(${liveContrast}%)`;
+      ctx.translate(temp.width/2, temp.height/2);
+      ctx.rotate(rot*Math.PI/180);
+      // cropActive => center crop 85%
+      if(cropActive){
+        const cw=w*0.85, ch=h*0.85;
+        ctx.drawImage(img, -cw/2, -ch/2, cw,ch);
+      } else {
+        ctx.drawImage(img, -w/2, -h/2, w,h);
+      }
+      temp.toBlob(b=> b?resolve(b):reject(new Error('canvas blob failed')), 'image/jpeg', 0.92);
+    };
+    img.onerror=reject;
+    img.src=liveObjectUrl;
+  });
+}
+
+function renderBackendResult(data, endpoint){
+  const box=document.getElementById('liveResultBox');
+  const content=document.getElementById('liveResultContent');
+  const time=document.getElementById('liveResultTime');
+  time.innerText=new Date().toLocaleString();
+  // Flexible rendering — backend controls fields
+  // Expected fields may include: prediction, label, confidence, score, findings, impression, heatmap, heatmap_url, heatmap_base64, boxes, etc.
+  // We render whatever backend returns, without inventing.
+  let html='';
+  if(data.prediction || data.label || data.result){
+    const label=data.prediction || data.label || data.result;
+    const conf=data.confidence!=null ? (typeof data.confidence==='number' ? (data.confidence>1? data.confidence.toFixed(1)+'%': (data.confidence*100).toFixed(1)+'%') : data.confidence) : (data.score!=null? data.score : '');
+    html+=`<div class="bg-brand-dark p-3 rounded-lg border border-brand-border"><div class="text-[11px] font-mono text-slate-400">Prediction</div><div class="text-white font-bold font-display mt-0.5">${escapeHtml(String(label))} ${conf?`<span class="text-brand-cyan font-mono text-xs">• ${escapeHtml(String(conf))}</span>`:''}</div></div>`;
+  }
+  if(data.findings) html+=`<div class="bg-brand-dark p-3 rounded-lg border border-brand-border"><div class="text-[11px] font-mono text-slate-400">Findings</div><div class="text-slate-200 mt-1 leading-relaxed">${Array.isArray(data.findings)? data.findings.map(f=>`<div>• ${escapeHtml(String(f))}</div>`).join('') : escapeHtml(String(data.findings))}</div></div>`;
+  if(data.impression || data.summary) html+=`<div class="bg-brand-dark p-3 rounded-lg border border-brand-border"><div class="text-[11px] font-mono text-slate-400">Impression</div><div class="text-slate-200 mt-1">${escapeHtml(String(data.impression||data.summary))}</div></div>`;
+  if(data.heatmap_url || data.heatmap || data.heatmap_base64){
+    const src=data.heatmap_url || data.heatmap || data.heatmap_base64;
+    const isBase64 = src.startsWith('data:image');
+    const imgSrc = isBase64? src : src;
+    html+=`<div class="bg-brand-dark p-3 rounded-lg border border-brand-border"><div class="text-[11px] font-mono text-slate-400">Heatmap</div><img src="${imgSrc}" class="mt-2 w-full rounded-lg border border-brand-border max-h-[220px] object-contain bg-black" onerror="this.style.display='none'"/></div>`;
+    // Also overlay on preview if possible
+    try{
+      const heatImg=new Image(); heatImg.onload=()=>{
+        const overlayCanvas=document.createElement('canvas');
+        overlayCanvas.width=livePreviewImg.naturalWidth; overlayCanvas.height=livePreviewImg.naturalHeight;
+        const octx=overlayCanvas.getContext('2d'); octx.globalAlpha=0.55; octx.drawImage(heatImg,0,0,overlayCanvas.width,overlayCanvas.height);
+        // show heatmap note
+        document.getElementById('liveHeatmapNote').classList.remove('hidden');
+      }; heatImg.src=imgSrc;
+    }catch(e){}
+  }
+  // Fallback — dump raw JSON if unknown shape, but still show something
+  if(!html){
+    html=`<div class="bg-brand-dark p-3 rounded-lg border border-brand-border"><div class="text-[11px] font-mono text-slate-400">Response from ${escapeHtml(endpoint)}</div><pre class="text-[11px] text-slate-300 whitespace-pre-wrap break-words mt-1">${escapeHtml(JSON.stringify(data,null,2))}</pre></div>`;
+  }
+  html+=`<div class="text-[10px] font-mono text-slate-500 pt-1">DEMO / SYNTHETIC RESULT — NOT FOR CLINICAL USE if synthetic • Real response rendered above • AI-assisted screening support. Does not replace clinical assessment.</div>`;
+  content.innerHTML=html;
+  box.classList.remove('hidden');
+  lucide.createIcons();
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+// Drag & drop upload
+const liveWrap=document.getElementById('liveCanvasWrap');
+if(liveWrap){
+  ;['dragenter','dragover'].forEach(ev=> liveWrap.addEventListener(ev,e=>{ e.preventDefault(); if(currentMode==='live') liveWrap.classList.add('ring-2','ring-brand-cyan/40'); }));
+  ;['dragleave','drop'].forEach(ev=> liveWrap.addEventListener(ev,e=>{ e.preventDefault(); liveWrap.classList.remove('ring-2','ring-brand-cyan/40'); }));
+  liveWrap.addEventListener('drop',e=>{
+    if(currentMode!=='live') return;
+    const f=e.dataTransfer.files[0]; if(f) loadLiveFile(f);
+  });
+}
+</script>
+</body>
+</html>
