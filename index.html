@@ -1043,8 +1043,8 @@ function resetLiveEdits(){
 
 // Real backend inference — no fake results
 // Configure your endpoint via window.INDRA_API_URL if needed. Defaults to /api/analyze-xray
-function getApiEndpoint(){ return "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDTapwvq_tHRyg4RSDEt25aukZM_RsMr7A"; }
-  
+function getApiEndpoint(){ return (window.INDRA_API_URL && window.INDRA_API_URL.trim()) || '/api/analyze-xray'; }
+
 async function analyzeLiveImage(){
   if(!liveFile){ showToast('No image to analyze. Capture or upload first.'); return; }
   const btn=document.getElementById('analyzeLiveBtn');
