@@ -36,11 +36,26 @@ async def analyze_xray(image: UploadFile = File(...)):
         contents = await image.read()
         pil_image = Image.open(io.BytesIO(contents))
 
-        # Initialize official Gemini 1.5 Flash model
-        model = genai.GenerativeModel("gemini-1.5-flash")
         prompt = "Analyze this medical X-ray image and provide concise clinical findings and recommendations."
 
-        response = model.generate_content([prompt, pil_image])
+        # Try active models in order of performance
+        model_names = ["gemini-1.5-flash-latest", "gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"]
+        
+        response = None
+        last_error = None
+
+        for model_name in model_names:
+            try:
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content([prompt, pil_image])
+                if response and response.text:
+                    break
+            except Exception as err:
+                last_error = err
+                continue
+
+        if not response or not response.text:
+            raise HTTPException(status_code=500, detail=f"Gemini API Error: {str(last_error)}")
 
         return {
             "success": True,
