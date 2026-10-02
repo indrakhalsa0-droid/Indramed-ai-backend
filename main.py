@@ -5,15 +5,11 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 
-import google.generativeai as genai
+from google import genai
 
 
 app = FastAPI(title="IndraMed AI Backend")
 
-
-# =========================
-# CORS
-# =========================
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,25 +20,19 @@ app.add_middleware(
 )
 
 
-# =========================
-# GEMINI CONFIGURATION
-# =========================
-
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 if API_KEY:
-    genai.configure(api_key=API_KEY)
+    client = genai.Client(api_key=API_KEY)
+else:
+    client = None
 
-
-# =========================
-# HOME / HEALTH
-# =========================
 
 @app.get("/")
 def home():
     return {
         "status": "IndraMed AI Backend is Running",
-        "model": "gemini-2.5-flash"
+        "model": "gemini-3.8-flash"
     }
 
 
@@ -50,30 +40,21 @@ def home():
 def health():
     return {
         "status": "ok",
-        "model": "gemini-2.5-flash"
+        "model": "gemini-3.8-flash"
     }
 
-
-# =========================
-# X-RAY ANALYSIS
-# =========================
 
 @app.post("/api/analyze-xray")
 async def analyze_xray(image: UploadFile = File(...)):
 
     try:
 
-        # Check API key
-        api_key = os.getenv("GEMINI_API_KEY")
-
-        if not api_key:
+        if not API_KEY:
             raise HTTPException(
                 status_code=500,
                 detail="GEMINI_API_KEY missing in Render environment variables."
             )
 
-
-        # Check file type
         if not image.content_type:
             raise HTTPException(
                 status_code=400,
@@ -86,26 +67,20 @@ async def analyze_xray(image: UploadFile = File(...)):
                 detail="Please upload a valid image file."
             )
 
-
-        # Read image
         contents = await image.read()
 
-
-        # Maximum 10 MB
         if len(contents) > 10 * 1024 * 1024:
             raise HTTPException(
                 status_code=413,
                 detail="Maximum image size is 10 MB."
             )
 
-
-        # Validate image
         try:
             pil_image = Image.open(io.BytesIO(contents))
             pil_image.verify()
 
-            # Re-open after verify
             pil_image = Image.open(io.BytesIO(contents))
+            pil_image.load()
 
         except Exception:
             raise HTTPException(
@@ -113,17 +88,6 @@ async def analyze_xray(image: UploadFile = File(...)):
                 detail="Invalid image file."
             )
 
-
-        # =========================
-        # GEMINI MODEL
-        # =========================
-
-        model = genai.GenerativeModel("gemini-2.5-flash")
-
-
-        # =========================
-        # MEDICAL X-RAY PROMPT
-        # =========================
 
         prompt = """
 You are an AI-assisted medical imaging research system for IndraMed.ai.
@@ -147,39 +111,24 @@ Return a concise structured assessment containing:
 8. Overall impression
 9. Recommended clinical correlation or further investigation
 
-If the image quality is insufficient, clearly state that.
+If image quality is insufficient, clearly state that.
 
-If tuberculosis cannot be determined from the image alone, explicitly say that.
+If tuberculosis cannot be determined from the image alone, explicitly say so.
 
 Use cautious clinical language and mention uncertainty where appropriate.
 """
 
 
-        # =========================
-        # SEND IMAGE TO GEMINI
-        # =========================
-
-        response = model.generate_content(
-            [
+        response = client.models.generate_content(
+            model="gemini-3.8-flash",
+            contents=[
                 prompt,
                 pil_image
             ]
         )
 
 
-        # =========================
-        # RESPONSE
-        # =========================
-
-        if not response:
-            raise HTTPException(
-                status_code=500,
-                detail="No response received from Gemini."
-            )
-
-
         analysis_text = getattr(response, "text", None)
-
 
         if not analysis_text:
             raise HTTPException(
@@ -190,7 +139,7 @@ Use cautious clinical language and mention uncertainty where appropriate.
 
         return {
             "success": True,
-            "model": "gemini-2.5-flash",
+            "model": "gemini-3.8-flash",
             "analysis": analysis_text,
             "disclaimer": (
                 "Research/prototype AI output only. "
@@ -202,7 +151,6 @@ Use cautious clinical language and mention uncertainty where appropriate.
 
     except HTTPException:
         raise
-
 
     except Exception as e:
 
