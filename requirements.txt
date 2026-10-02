@@ -3,5 +3,4 @@ uvicorn
 httpx
 pillow
 python-multipart
-google-generativeai
-
+google-genai
