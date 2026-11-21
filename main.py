@@ -175,5 +175,6 @@ Use cautious clinical language and mention uncertainty where appropriate.
         raise HTTPException(
             status_code=500,
             detail=f"Analysis failed: {str(e)}"
-        )
-        
+            )
+
+    
