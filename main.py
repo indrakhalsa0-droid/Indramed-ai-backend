@@ -28,12 +28,16 @@ FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-2.5-flash-lite")
 client = genai.Client(api_key=API_KEY) if API_KEY else None
 
 
-def generate_with_retry(contents, max_retries_per_model=2):
-    models_to_try = [PRIMARY_MODEL]
-    for m in [FALLBACK_MODEL, "gemini-2.5-pro", "gemini-2.0-flash"]:
-        if m and m not in models_to_try:
-            models_to_try.append(m)
+def build_model_chain():
+    chain = []
+    for m in [PRIMARY_MODEL, FALLBACK_MODEL, "gemini-2.5-pro", "gemini-3.8-flash"]:
+        if m and "2.0" not in m and m not in chain:
+            chain.append(m)
+    return chain
 
+
+def generate_with_retry(contents, max_retries_per_model=2):
+    models_to_try = build_model_chain()
     last_error = None
 
     for model_name in models_to_try:
@@ -50,6 +54,10 @@ def generate_with_retry(contents, max_retries_per_model=2):
             except Exception as e:
                 last_error = e
                 err_str = str(e)
+
+                if "404" in err_str or "NOT_FOUND" in err_str:
+                    break
+
                 is_transient = (
                     "503" in err_str
                     or "UNAVAILABLE" in err_str
@@ -72,6 +80,7 @@ def home():
         "status": "IndraMed AI Backend is Running",
         "model": PRIMARY_MODEL,
         "fallback_model": FALLBACK_MODEL,
+        "models_chain": build_model_chain(),
     }
 
 
@@ -81,6 +90,7 @@ def health():
         "status": "ok",
         "model": PRIMARY_MODEL,
         "fallback_model": FALLBACK_MODEL,
+        "models_chain": build_model_chain(),
     }
 
 
@@ -194,5 +204,5 @@ Use cautious clinical language and mention uncertainty where appropriate.
         raise HTTPException(
             status_code=500,
             detail=f"Analysis failed: {str(e)}"
-        )
+            )
         
