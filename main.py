@@ -1,5 +1,6 @@
 import os
 import io
+import time
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,18 +22,55 @@ app.add_middleware(
 
 
 API_KEY = os.getenv("GEMINI_API_KEY")
+PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-flash-latest")
 
-if API_KEY:
-    client = genai.Client(api_key=API_KEY)
-else:
-    client = None
+client = genai.Client(api_key=API_KEY) if API_KEY else None
+
+
+def generate_with_retry(contents, max_retries_per_model=2):
+    models_to_try = [PRIMARY_MODEL]
+    if FALLBACK_MODEL and FALLBACK_MODEL not in models_to_try:
+        models_to_try.append(FALLBACK_MODEL)
+
+    last_error = None
+
+    for model_name in models_to_try:
+        for attempt in range(max_retries_per_model + 1):
+            try:
+                resp = client.models.generate_content(
+                    model=model_name,
+                    contents=contents,
+                )
+                text = getattr(resp, "text", None)
+                if text and text.strip():
+                    return text, model_name
+                last_error = RuntimeError("Gemini returned an empty response.")
+            except Exception as e:
+                last_error = e
+                err_str = str(e)
+                is_transient = (
+                    "503" in err_str
+                    or "UNAVAILABLE" in err_str
+                    or "429" in err_str
+                    or "RESOURCE_EXHAUSTED" in err_str
+                    or "high demand" in err_str.lower()
+                    or "overloaded" in err_str.lower()
+                )
+                if is_transient and attempt < max_retries_per_model:
+                    time.sleep(1.5 * (2 ** attempt))
+                    continue
+                break
+
+    raise last_error
 
 
 @app.get("/")
 def home():
     return {
         "status": "IndraMed AI Backend is Running",
-        "model": "gemini-3.8-flash"
+        "model": PRIMARY_MODEL,
+        "fallback_model": FALLBACK_MODEL,
     }
 
 
@@ -40,16 +78,15 @@ def home():
 def health():
     return {
         "status": "ok",
-        "model": "gemini-3.8-flash"
+        "model": PRIMARY_MODEL,
+        "fallback_model": FALLBACK_MODEL,
     }
 
 
 @app.post("/api/analyze-xray")
 async def analyze_xray(image: UploadFile = File(...)):
-
     try:
-
-        if not API_KEY:
+        if not API_KEY or not client:
             raise HTTPException(
                 status_code=500,
                 detail="GEMINI_API_KEY missing in Render environment variables."
@@ -81,13 +118,11 @@ async def analyze_xray(image: UploadFile = File(...)):
 
             pil_image = Image.open(io.BytesIO(contents))
             pil_image.load()
-
         except Exception:
             raise HTTPException(
                 status_code=400,
                 detail="Invalid image file."
             )
-
 
         prompt = """
 You are an AI-assisted medical imaging research system for IndraMed.ai.
@@ -118,29 +153,13 @@ If tuberculosis cannot be determined from the image alone, explicitly say so.
 Use cautious clinical language and mention uncertainty where appropriate.
 """
 
-
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=[
-                prompt,
-                pil_image
-            ]
-        )
-
-
-        analysis_text = getattr(response, "text", None)
-
-        if not analysis_text:
-            raise HTTPException(
-                status_code=500,
-                detail="Gemini returned an empty response."
-            )
-
+        analysis_text, used_model = generate_with_retry([prompt, pil_image])
 
         return {
             "success": True,
-            "model": "gemini-3.8-flash",
+            "model": used_model,
             "analysis": analysis_text,
+            "impression": analysis_text,
             "disclaimer": (
                 "Research/prototype AI output only. "
                 "Not a confirmed diagnosis and not a substitute "
@@ -148,15 +167,13 @@ Use cautious clinical language and mention uncertainty where appropriate.
             )
         }
 
-
     except HTTPException:
         raise
 
     except Exception as e:
-
         print("X-RAY ANALYSIS ERROR:", str(e))
-
         raise HTTPException(
             status_code=500,
             detail=f"Analysis failed: {str(e)}"
         )
+        
