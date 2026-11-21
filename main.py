@@ -23,15 +23,16 @@ app.add_middleware(
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-flash-latest")
+FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-2.5-flash-lite")
 
 client = genai.Client(api_key=API_KEY) if API_KEY else None
 
 
 def generate_with_retry(contents, max_retries_per_model=2):
     models_to_try = [PRIMARY_MODEL]
-    if FALLBACK_MODEL and FALLBACK_MODEL not in models_to_try:
-        models_to_try.append(FALLBACK_MODEL)
+    for m in [FALLBACK_MODEL, "gemini-2.5-pro", "gemini-2.0-flash"]:
+        if m and m not in models_to_try:
+            models_to_try.append(m)
 
     last_error = None
 
@@ -81,6 +82,24 @@ def health():
         "model": PRIMARY_MODEL,
         "fallback_model": FALLBACK_MODEL,
     }
+
+
+@app.get("/models")
+def list_available_models():
+    if not API_KEY or not client:
+        raise HTTPException(
+            status_code=500,
+            detail="GEMINI_API_KEY missing in Render environment variables."
+        )
+    try:
+        available = []
+        for m in client.models.list():
+            name = getattr(m, "name", "")
+            if "gemini" in name.lower():
+                available.append(name)
+        return {"models": available}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/analyze-xray")
@@ -175,6 +194,5 @@ Use cautious clinical language and mention uncertainty where appropriate.
         raise HTTPException(
             status_code=500,
             detail=f"Analysis failed: {str(e)}"
-            )
-
-    
+        )
+        
