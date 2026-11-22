@@ -15,28 +15,34 @@ app = FastAPI(title="IndraMed AI Backend")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
 API_KEY = os.getenv("GEMINI_API_KEY")
-PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-2.5-flash-lite")
+PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-3.5-flash-lite")
 
 client = genai.Client(api_key=API_KEY) if API_KEY else None
 
 
 def build_model_chain():
     chain = []
-    for m in [PRIMARY_MODEL, FALLBACK_MODEL, "gemini-2.5-pro", "gemini-3.8-flash"]:
+    for m in [
+        PRIMARY_MODEL,
+        FALLBACK_MODEL,
+        "gemini-2.5-flash-lite",
+        "gemini-3.8-flash",
+        "gemini-2.5-flash",
+    ]:
         if m and "2.0" not in m and m not in chain:
             chain.append(m)
     return chain
 
 
-def generate_with_retry(contents, max_retries_per_model=2):
+def generate_with_retry(contents, max_retries_per_model=1):
     models_to_try = build_model_chain()
     last_error = None
 
@@ -67,7 +73,7 @@ def generate_with_retry(contents, max_retries_per_model=2):
                     or "overloaded" in err_str.lower()
                 )
                 if is_transient and attempt < max_retries_per_model:
-                    time.sleep(1.5 * (2 ** attempt))
+                    time.sleep(0.5 * (2 ** attempt))
                     continue
                 break
 
@@ -154,32 +160,48 @@ async def analyze_xray(image: UploadFile = File(...)):
             )
 
         prompt = """
-You are an AI-assisted medical imaging research system for IndraMed.ai.
+You are IndraMed AI, a structured clinical radiograph analysis system.
 
-Analyze the provided chest X-ray image.
+Analyze the provided X-ray image thoroughly and clearly.
+Do NOT write "not for medical use", "research prototype only", or repetitive disclaimers.
+Present the response in clean Markdown using exact headings and VERTICAL numbered points using hyphen format:
+1- point one
+2- point two
+3- point three
 
-IMPORTANT:
-This is a research/prototype assessment and NOT a definitive medical diagnosis.
-Do not claim certainty.
-Do not prescribe treatment autonomously.
+Never combine multiple points horizontally on one line. Put each point on its own new line.
+Bold all key/main findings using **double asterisks**.
 
-Return a concise structured assessment containing:
+Use this exact structure:
 
-1. Image quality
-2. Major visible findings
-3. Lung fields
-4. Pleura
-5. Heart / mediastinum
-6. Any suspicious abnormality
-7. TB-related features, if visibly present
-8. Overall impression
-9. Recommended clinical correlation or further investigation
+### 1. Image Quality & Technical View
+1- **Projection & Positioning**: ...
+2- **Exposure, Penetration & Motion/Artifacts**: ...
 
-If image quality is insufficient, clearly state that.
+### 2. Main Radiographic Findings
+1- **Primary Finding**: ...
+2- **Lung Fields & Parenchyma**: ...
+3- **Pleura, Costophrenic Angles & Diaphragm**: ...
+4- **Heart, Mediastinum & Great Vessels**: ...
+5- **Bones & Soft Tissues**: ...
 
-If tuberculosis cannot be determined from the image alone, explicitly say so.
+### 3. Differential Diagnosis
+1- **Most Likely Diagnosis**: ...
+2- **Alternative Possibility 1**: ...
+3- **Alternative Possibility 2**: ...
 
-Use cautious clinical language and mention uncertainty where appropriate.
+### 4. Recommended Investigations
+1- **Laboratory Tests**: ...
+2- **Further Imaging**: ...
+3- **Microbiological / Diagnostic Workup**: ...
+
+### 5. Treatment & Clinical Management
+1- **Immediate / Supportive Measures**: ...
+2- **Targeted / Empirical Therapy Considerations**: ...
+3- **Follow-Up & Specialist Referral**: ...
+
+### 6. Summary Impression
+1- **Key Takeaway**: ...
 """
 
         analysis_text, used_model = generate_with_retry([prompt, pil_image])
@@ -189,11 +211,6 @@ Use cautious clinical language and mention uncertainty where appropriate.
             "model": used_model,
             "analysis": analysis_text,
             "impression": analysis_text,
-            "disclaimer": (
-                "Research/prototype AI output only. "
-                "Not a confirmed diagnosis and not a substitute "
-                "for qualified clinical assessment."
-            )
         }
 
     except HTTPException:
@@ -204,5 +221,5 @@ Use cautious clinical language and mention uncertainty where appropriate.
         raise HTTPException(
             status_code=500,
             detail=f"Analysis failed: {str(e)}"
-            )
+        )
         
